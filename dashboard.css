@@ -1,0 +1,18 @@
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+}
+
+.left-section {
+  width: 20%;
+  background-color: #f1f1f1;
+  padding: 20px;
+  /* Add any additional styling for the left section */
+}
+
+.right-section {
+  flex-grow: 1;
+  background-color: #fff;
+  padding: 20px;
+  /* Add any additional styling for the right section */
+}
