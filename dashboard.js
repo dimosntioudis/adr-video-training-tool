@@ -69,6 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('video-title').value = '';
         document.getElementById('video-description').value = '';
 
+        uploadPopup.remove();
+
         // Fetch and display the updated video list
         fetchVideoList();
       } else {
