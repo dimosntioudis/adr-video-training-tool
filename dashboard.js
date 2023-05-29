@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const videoListElement = document.getElementById('video-list');
   const searchBar = document.getElementById('search-bar');
   const suggestionsContainer = document.getElementById('suggestions-container');
+  const uploadButton = document.getElementById('upload-button');
+  const uploadPopup = document.getElementById('upload-popup');
 
   // Retrieve the logged-in user from local storage
   const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
@@ -35,8 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
       // Handle error and display an error message to the user
     });
 
+    uploadButton.addEventListener('click', () => {
+      uploadPopup.style.display = 'block';
+    });
+
     // Handle video upload form submission
-    uploadForm.addEventListener('submit', async (event) => {
+    uploadPopup.addEventListener('submit', async (event) => {
       event.preventDefault();
 
       const videoFile = document.getElementById('video-file').files[0];
