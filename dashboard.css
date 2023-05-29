@@ -27,3 +27,34 @@
   padding: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
+
+/* Add custom styles for the header */
+header {
+  background-color: #f1f1f1;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.login-logout {
+  display: flex;
+  align-items: center;
+}
+
+.login-logout a {
+  margin-right: 10px;
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+}
+
+.logo img {
+  width: 150px; /* Adjust the width as needed */
+  height: auto; /* Adjust the height as needed */
+}

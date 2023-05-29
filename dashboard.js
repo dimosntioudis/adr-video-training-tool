@@ -1,11 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const userInfoElement = document.getElementById('personal-info');
-  const uploadForm = document.getElementById('upload-form');
   const videoListElement = document.getElementById('video-list');
   const searchBar = document.getElementById('search-bar');
   const suggestionsContainer = document.getElementById('suggestions-container');
   const uploadButton = document.getElementById('upload-button');
   const uploadPopup = document.getElementById('upload-popup');
+  const logoutLink = document.getElementById('logout-link');
 
   // Retrieve the logged-in user from local storage
   const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
@@ -76,6 +75,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Handle error and display an error message to the user
         console.error('Failed to upload video:', response.status);
       }
+    });
+
+    logoutLink.addEventListener('click', () => {
+      // Clear the logged-in user from local storage
+      localStorage.removeItem('loggedInUser');
+      // Redirect to the login page
+      window.location.href = '/login.html';
     });
 
     // Fetch and display the video list
