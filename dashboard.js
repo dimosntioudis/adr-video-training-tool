@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(response => response.json())
     .then(data => {
       // Display the user information in the Personal Information section
-      const { user } = data;
+      const {user} = data;
       const personalInfoElement = document.getElementById('personal-info');
       personalInfoElement.innerHTML = `
         <p>Username: ${user.username}</p>
@@ -41,7 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const videoFile = document.getElementById('video-file').files[0];
       const videoTitle = document.getElementById('video-title').value;
-      const videoDescription = document.getElementById('video-description').value;
+      const videoDescription = document.getElementById(
+          'video-description').value;
 
       const formData = new FormData();
       formData.append('video', videoFile);
@@ -75,54 +76,61 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchVideoList();
 
     // Handle search bar input
-    searchBar.addEventListener('input', () => {
+    searchBar.addEventListener('keyup', () => {
       const searchQuery = searchBar.value;
-      if (searchQuery.trim() !== '') {
-        // Make a request to the server to fetch search suggestions based on the search query
-        fetch(`http://localhost:3000/search?title=${searchQuery}`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${loggedInUser.token}`,
-            'Content-Type': 'application/json'
-          }
-        })
-        .then(response => response.json())
-        .then(data => {
-          // Display the search suggestions in the suggestions container
-          const { videos } = data;
-          suggestionsContainer.innerHTML = '';
-
-          videos.forEach(video => {
-            const videoItem  = document.createElement('div');
-            videoItem.classList.add('video-item');
-            videoItem.textContent = video.title;
-
-            // Handle suggestion click
-            videoItem.addEventListener('click', () => {
-              // Set the search bar value to the selected suggestion
-              searchBar.value = video.title.toSigned();
-              // Fetch and display the videos based on the selected suggestion
-              fetchVideosByTitle(video.title);
-              // Clear the suggestions container
-              suggestionsContainer.innerHTML = '';
-            });
-
-            suggestionsContainer.appendChild(videoItem);
-          });
-        })
-        .catch(error => {
-          console.error('Failed to fetch search suggestions:', error);
-          // Handle error and display an error message to the user
-        });
-      } else {
-        // Clear the suggestions container if the search query is empty
-        suggestionsContainer.innerHTML = '';
-      }
+      debounceSearch(searchQuery);
     });
   } else {
     // User is not logged in, redirect to the login page
     window.location.href = '/login.html';
   }
+
+  // Debounce function from Lodash (import it if you haven't already)
+  const debounceSearch = _.debounce((searchQuery) => {
+    if (searchQuery.trim() !== '') {
+      // Make a request to the server to fetch search suggestions based on the search query
+      fetch(`http://localhost:3000/search?title=${searchQuery}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${loggedInUser.token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        const {videos} = data;
+        // Clear the suggestions container after each keystroke
+        suggestionsContainer.innerHTML = '';
+
+        videos.forEach(video => {
+          const videoItem = document.createElement('div');
+          videoItem.classList.add('video-item');
+          videoItem.innerHTML = `
+              <p>Title: ${video.title}</p>
+              <button class="play-button" data-video-id="${video._id}">Play</button>
+            `;
+          suggestionsContainer.appendChild(videoItem);
+        });
+
+        // Attach event listeners to the play buttons
+        const playButtons = document.querySelectorAll('.play-button');
+        playButtons.forEach(button => {
+          button.addEventListener('click', () => {
+            const videoId = button.dataset.videoId;
+            // Call a function to play the selected video using the videoId
+            playVideo(videoId);
+          });
+        });
+      })
+      .catch(error => {
+        console.error('Failed to fetch search suggestions:', error);
+        // Handle error and display an error message to the user
+      });
+    } else {
+      // Clear the suggestions container if the search query is empty
+      suggestionsContainer.innerHTML = '';
+    }
+  }, 300); // Adjust the debounce delay as needed (e.g., 300 milliseconds)
 
   // Function to fetch and display the video list
   async function fetchVideoList() {
@@ -137,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(response => response.json())
     .then(data => {
       // Display the user's videos in the video list
-      const { videos } = data;
+      const {videos} = data;
       videos.forEach(video => {
         const videoItem = document.createElement('div');
         videoItem.classList.add('video-item');
@@ -199,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .then(response => response.json())
     .then(data => {
-      const { videos } = data;
+      const {videos} = data;
       videoListElement.innerHTML = '';
 
       videos.forEach(video => {
