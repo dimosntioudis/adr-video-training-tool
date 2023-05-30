@@ -5,12 +5,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const uploadButton = document.getElementById('upload-button');
   const uploadPopup = document.getElementById('upload-popup');
   const logoutLink = document.getElementById('logout-link');
+  const closeButton = document.getElementById('close-button');
 
   // Retrieve the logged-in user from local storage
   const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
 
   // Check if the user is logged in
   if (loggedInUser) {
+    closeButton.addEventListener('click', () => {
+      uploadPopup.style.display = 'none';
+    });
+
     // Display the username
     document.getElementById('username').textContent = loggedInUser.username;
 
@@ -163,6 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
       videos.forEach(video => {
         const videoItem = document.createElement('div');
         videoItem.classList.add('video-item');
+        videoItem.classList.add('swiper-slide'); // Add the swiper-slide class
         videoItem.innerHTML = `
           <p>Title: ${video.title}</p>
           <p>Id: ${video._id}</p>
