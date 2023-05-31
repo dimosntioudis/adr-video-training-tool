@@ -105,6 +105,24 @@ app.get('/dashboard', authenticateToken, async (req, res) => {
   }
 });
 
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads'); // Specify the destination folder for uploaded videos
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + '-' + file.originalname);
+  },
+});
+
+// Set up multer upload configuration
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 30 * 1024 * 1024, // Maximum file size of 30MB
+  },
+});
+
 // POST Upload route (protected)
 app.post('/upload', authenticateToken, upload.single('video'), async (req, res) => {
   try {
@@ -271,24 +289,6 @@ app.get('/search', authenticateToken, async (req, res) => {
     console.error('Search error:', error);
     res.status(500).json({ message: 'An error occurred during the search.' });
   }
-});
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads'); // Specify the destination folder for uploaded videos
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + '-' + file.originalname);
-  },
-});
-
-// Set up multer upload configuration
-const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 30 * 1024 * 1024, // Maximum file size of 30MB
-  },
 });
 
 // Middleware to authenticate token

@@ -52,11 +52,37 @@
   </div>
   <div class="right-section">
     <!-- Video Player Section -->
+    <h2>Video Player</h2>
     <div id="video-player-section">
-      <h2>Video Player</h2>
-      <video id="video-player" controls>
+      <video id="video-player">
         <!-- Video source will be dynamically inserted here -->
       </video>
+      <div id="custom-controls">
+        <div id="progress-bar-container">
+          <div id="progress-bar"></div>
+        </div>
+        <button id="play-btn">Play</button>
+        <button id="pause-btn">Pause</button>
+      </div>
+      <canvas id="annotation-canvas"></canvas>
+      <div id="annotation-popup" class="hidden">
+        <textarea id="annotation-description" placeholder="Add a description..."></textarea>
+        <select id="annotation-dropdown">
+          <option value="Option 1">Option 1</option>
+          <option value="Option 2">Option 2</option>
+          <option value="Option 3">Option 3</option>
+        </select>
+        <button id="save-annotation-btn">Save</button>
+      </div>
+    </div>
+    <div id="annotation-section">
+      <h2>Video Annotations</h2>
+      <div id="annotation-list">
+        <!-- Annotation items will be dynamically inserted here -->
+      </div>
+    </div>
+    <div id="annotation-controls">
+      <button id="draw-rectangle-btn">Draw Rectangle</button>
     </div>
   </div>
 </div>

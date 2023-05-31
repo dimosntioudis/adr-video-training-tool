@@ -7,18 +7,109 @@ document.addEventListener('DOMContentLoaded', () => {
   const logoutLink = document.getElementById('logout-link');
   const closeButton = document.getElementById('close-button');
 
+  // For drawing
+  const videoPlayer = document.getElementById('video-player');
+  const annotationCanvas = document.getElementById('annotation-canvas');
+  const drawRectangleBtn = document.getElementById('draw-rectangle-btn');
+  let isDrawing = false;
+  let startX, startY, endX, endY;
+
+  // Video control
+  const playBtn = document.getElementById('play-btn');
+  const pauseBtn = document.getElementById('pause-btn');
+  const progressBarContainer = document.getElementById('progress-bar-container');
+  const progressBar = document.getElementById('progress-bar');
+
+  // Set the canvas dimensions to match the video player dimensions
+  annotationCanvas.width = videoPlayer.clientWidth;
+  annotationCanvas.height = videoPlayer.clientHeight;
+
+  // For annotation
+  const annotationPopup = document.getElementById('annotation-popup');
+  const annotationDescription = document.getElementById(
+      'annotation-description');
+  const annotationDropdown = document.getElementById('annotation-dropdown');
+  const saveAnnotationBtn = document.getElementById('save-annotation-btn');
+
   // Retrieve the logged-in user from local storage
   const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
 
   // Check if the user is logged in
   if (loggedInUser) {
-    closeButton.addEventListener('click', () => {
-      uploadPopup.style.display = 'none';
+    // DRAWING SECTION
+    // Add event listeners to the draw rectangle button
+    drawRectangleBtn.addEventListener('click', () => {
+      // Pause video playback
+      videoPlayer.pause();
+      isDrawing = true;
     });
 
-    // Display the username
-    document.getElementById('username').textContent = loggedInUser.username;
+    // Handle mouse down event on the annotation canvas
+    annotationCanvas.addEventListener('mousedown', (event) => {
+      if (!isDrawing) {
+        return;
+      }
+      const rect = annotationCanvas.getBoundingClientRect();
+      startX = event.clientX - rect.left;
+      startY = event.clientY - rect.top;
+      console.log(startX);
+      console.log(startY);
+    });
 
+    // Handle mouse up event on the annotation canvas
+    annotationCanvas.addEventListener('mouseup', (event) => {
+      if (!isDrawing) {
+        return;
+      }
+      const rect = annotationCanvas.getBoundingClientRect();
+      endX = event.clientX - rect.left;
+      endY = event.clientY - rect.top;
+      console.log(endX);
+      console.log(endY);
+      drawRectangle(startX, startY, endX, endY);
+      showAnnotationPopup();
+      isDrawing = false;
+    });
+
+    // Function to draw a rectangle on the canvas
+    function drawRectangle(x1, y1, x2, y2) {
+      const ctx = annotationCanvas.getContext('2d');
+      ctx.strokeStyle = 'red';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.rect(x1, y1, x2 - x1, y2 - y1);
+      ctx.stroke();
+    }
+
+    // Function to show the annotation popup
+    function showAnnotationPopup() {
+      annotationPopup.classList.remove('hidden');
+    }
+
+    // Function to hide the annotation popup
+    function hideAnnotationPopup() {
+      annotationPopup.classList.add('hidden');
+    }
+
+    // Event listener for the "Save" button
+    saveAnnotationBtn.addEventListener('click', () => {
+      // Perform save operation or any desired action
+      hideAnnotationPopup();
+
+      // Reset the form fields
+      resetForm();
+    });
+
+    function resetForm() {
+      const annotationDescription = document.getElementById('annotation-description');
+      const annotationDropdown = document.getElementById('annotation-dropdown');
+
+      // Reset the form fields to their initial values
+      annotationDescription.value = '';
+      annotationDropdown.selectedIndex = 0;
+    }
+
+    // PERSONAL INFO SECTION
     // Make a request to the server to fetch the user information
     fetch('http://localhost:3000/dashboard', {
       method: 'GET',
@@ -41,8 +132,13 @@ document.addEventListener('DOMContentLoaded', () => {
       // Handle error and display an error message to the user
     });
 
+    // UPLOAD SECTION
     uploadButton.addEventListener('click', () => {
       uploadPopup.style.display = 'block';
+    });
+
+    closeButton.addEventListener('click', () => {
+      uploadPopup.style.display = 'none';
     });
 
     // Handle video upload form submission
@@ -77,13 +173,14 @@ document.addEventListener('DOMContentLoaded', () => {
         uploadPopup.remove();
 
         // Fetch and display the updated video list
-        fetchVideoList();
+        await fetchVideoList();
       } else {
         // Handle error and display an error message to the user
         console.error('Failed to upload video:', response.status);
       }
     });
 
+    // LOGOUT BUTTON
     logoutLink.addEventListener('click', () => {
       // Clear the logged-in user from local storage
       localStorage.removeItem('loggedInUser');
@@ -91,17 +188,48 @@ document.addEventListener('DOMContentLoaded', () => {
       window.location.href = '/login.html';
     });
 
+    // VIDEO REVIEW SECTION
     // Fetch and display the video list
     fetchVideoList();
 
+    // SEARCH BAR
     // Handle search bar input
     searchBar.addEventListener('keyup', () => {
       const searchQuery = searchBar.value;
       debounceSearch(searchQuery);
     });
+
+    // VIDEO SECTION
+    playBtn.addEventListener('click', () => {
+      clearCanvas();
+      videoPlayer.play();
+    });
+
+    pauseBtn.addEventListener('click', () => {
+      videoPlayer.pause();
+    });
+
+    progressBarContainer.addEventListener('click', (event) => {
+      const clickX = event.clientX - progressBarContainer.offsetLeft;
+      const progressBarWidth = progressBarContainer.offsetWidth;
+      const seekTime = (clickX / progressBarWidth) * videoPlayer.duration;
+      videoPlayer.currentTime = seekTime;
+    });
+
+    videoPlayer.addEventListener('timeupdate', () => {
+      const currentTime = videoPlayer.currentTime;
+      const duration = videoPlayer.duration;
+      const progress = (currentTime / duration) * 100;
+      progressBar.style.width = `${progress}%`;
+    });
   } else {
     // User is not logged in, redirect to the login page
     window.location.href = '/login.html';
+  }
+  // Function to clear the canvas
+  function clearCanvas() {
+    const ctx = annotationCanvas.getContext('2d');
+    ctx.clearRect(0, 0, annotationCanvas.width, annotationCanvas.height);
   }
 
   // Debounce function from Lodash (import it if you haven't already)
@@ -194,9 +322,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Function to play the video
   function playVideo(videoId) {
     // Retrieve the video based on the videoId
-    fetch(`http://localhost:3000/videos/${videoId}`)
+    fetch(`http://localhost:3000/videos/${videoId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${loggedInUser.token}`,
+        'Content-Type': 'application/json'
+      }
+    })
     .then(response => response.json())
     .then(video => {
       const videoPlayer = document.getElementById('video-player');
@@ -213,48 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .catch(error => {
       console.error('Error fetching video:', error);
-    });
-  }
-
-  async function fetchVideosByTitle(title) {
-    // Make a request to the server to fetch videos by title
-    fetch(`http://localhost:3000/videos/search?title=${title}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${loggedInUser.token}`,
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
-      const {videos} = data;
-      videoListElement.innerHTML = '';
-
-      videos.forEach(video => {
-        const videoItem = document.createElement('div');
-        videoItem.classList.add('video-item');
-        videoItem.innerHTML = `
-          <p>Title: ${video.title}</p>
-          <p>Id: ${video._id}</p>
-          <p>Path: ${video.path}</p>
-          <button class="play-button" data-video-id="${video._id}">Play</button>
-        `;
-        videoListElement.appendChild(videoItem);
-      });
-
-      // Attach event listeners to the play buttons
-      const playButtons = document.querySelectorAll('.play-button');
-      playButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          const videoId = button.dataset.videoId;
-          // Call a function to play the selected video using the videoId
-          playVideo(videoId);
-        });
-      });
-    })
-    .catch(error => {
-      console.error('Failed to fetch videos by title:', error);
-      // Handle error and display an error message to the user
     });
   }
 });
