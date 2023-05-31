@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     progressBarContainer.addEventListener('click', (event) => {
-      const clickX = event.clientX - progressBarContainer.offsetLeft;
+      const clickX = event.offsetX;
       const progressBarWidth = progressBarContainer.offsetWidth;
       const seekTime = (clickX / progressBarWidth) * videoPlayer.duration;
       videoPlayer.currentTime = seekTime;
