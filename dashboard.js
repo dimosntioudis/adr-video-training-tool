@@ -12,13 +12,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const annotationCanvas = document.getElementById('annotation-canvas');
   const drawRectangleBtn = document.getElementById('draw-rectangle-btn');
   let isDrawing = false;
-  let startX, startY, endX, endY;
+  let startX, startY, endX, endY, width, height;
 
   // Video control
   const playBtn = document.getElementById('play-btn');
   const pauseBtn = document.getElementById('pause-btn');
   const progressBarContainer = document.getElementById('progress-bar-container');
   const progressBar = document.getElementById('progress-bar');
+  let videoId;
 
   // Set the canvas dimensions to match the video player dimensions
   annotationCanvas.width = videoPlayer.clientWidth;
@@ -26,8 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // For annotation
   const annotationPopup = document.getElementById('annotation-popup');
-  const annotationDescription = document.getElementById(
-      'annotation-description');
+  const annotationDescription = document.getElementById('annotation-description');
   const annotationDropdown = document.getElementById('annotation-dropdown');
   const saveAnnotationBtn = document.getElementById('save-annotation-btn');
 
@@ -73,6 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to draw a rectangle on the canvas
     function drawRectangle(x1, y1, x2, y2) {
+      width = x2 - x1;
+      height = y2 - y1;
       const ctx = annotationCanvas.getContext('2d');
       ctx.strokeStyle = 'red';
       ctx.lineWidth = 2;
@@ -91,9 +93,50 @@ document.addEventListener('DOMContentLoaded', () => {
       annotationPopup.classList.add('hidden');
     }
 
-    // Event listener for the "Save" button
     saveAnnotationBtn.addEventListener('click', () => {
-      // Perform save operation or any desired action
+      // Get the annotation data
+      const second = videoPlayer.currentTime; // Retrieve the annotation second value
+      const rectangle = {
+        x: startX, // Retrieve the rectangle x value,
+        y: startY, // Retrieve the rectangle y value,
+        width: width, // Retrieve the rectangle width value,
+        height: height, // Retrieve the rectangle height value,
+      };
+      const description = annotationDescription.value; // Retrieve the annotation description value
+      const dropdownValue = annotationDropdown.value; // Retrieve the dropdown value
+
+      // Create the annotation object
+      const annotation = {
+        second,
+        rectangle,
+        description,
+        dropdownValue,
+      };
+
+      // Send a POST request to save the annotation
+      const id = videoId; // Replace 'videoId' with the actual video ID
+      fetch(`http://localhost:3000/videos/${id}/annotations`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${loggedInUser.token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(annotation),
+      })
+      .then((response) => {
+        if (response.ok) {
+          // Annotation saved successfully
+          console.log('Annotation saved successfully');
+        } else {
+          // Failed to save the annotation
+          console.error('Failed to save the annotation');
+        }
+      })
+      .catch((error) => {
+        console.error('An error occurred while saving the annotation:', error);
+      });
+
+      // Hide the annotation popup
       hideAnnotationPopup();
 
       // Reset the form fields
@@ -263,7 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const playButtons = document.querySelectorAll('.play-button');
         playButtons.forEach(button => {
           button.addEventListener('click', () => {
-            const videoId = button.dataset.videoId;
+            videoId = button.dataset.videoId;
             // Call a function to play the selected video using the videoId
             playVideo(videoId);
           });
@@ -310,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const playButtons = document.querySelectorAll('.play-button');
       playButtons.forEach(button => {
         button.addEventListener('click', () => {
-          const videoId = button.dataset.videoId;
+          videoId = button.dataset.videoId;
           // Call a function to play the selected video using the videoId
           playVideo(videoId);
         });
