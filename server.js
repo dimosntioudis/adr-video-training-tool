@@ -206,6 +206,28 @@ app.get('/videos/:videoId', authenticateToken, async (req, res) => {
   }
 });
 
+// GET Annotation of Video (protected)
+app.get('/videos/:videoId/annotations', authenticateToken, async (req, res) => {
+  try {
+    const { videoId } = req.params;
+
+    // Find the video by its ID
+    const video = await Video.findById(videoId);
+
+    if (!video) {
+      return res.status(404).json({ message: 'Video not found' });
+    }
+
+    // Retrieve the annotations of the video
+    const annotations = video.annotations;
+
+    res.json(annotations);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
 // POST Annotation to Video (protected)
 app.post('/videos/:videoId/annotations', authenticateToken, async (req, res) => {
   try {

@@ -127,9 +127,17 @@ header {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: #fff;
+  padding: 20px;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   padding: 10px;
   z-index: 100;
+}
+
+#close-popup-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
 }
 
 #annotation-popup textarea {
@@ -167,6 +175,35 @@ header {
 
 #video-player-section {
   background-color: #eaeaea; /* Replace with your desired background color */
+}
+
+#annotation-section {
+  position: relative;
+}
+
+#annotation-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.annotation-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.annotation-item span {
+  margin-right: 10px;
+}
+
+.annotation-item button {
+  margin-left: 10px;
+}
+
+#error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 5px;
 }
 
 body {

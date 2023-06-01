@@ -66,6 +66,7 @@
       </div>
       <canvas id="annotation-canvas"></canvas>
       <div id="annotation-popup" class="hidden">
+        <button id="close-popup-btn">X</button>
         <textarea id="annotation-description" placeholder="Add a description..."></textarea>
         <select id="annotation-dropdown">
           <option value="Option 1">Option 1</option>
@@ -73,16 +74,17 @@
           <option value="Option 3">Option 3</option>
         </select>
         <button id="save-annotation-btn">Save</button>
+        <p id="error-message" class="hidden">Description is required.</p>
       </div>
+    </div>
+    <div id="annotation-controls">
+      <button id="draw-rectangle-btn">Draw Rectangle</button>
     </div>
     <div id="annotation-section">
       <h2>Video Annotations</h2>
       <div id="annotation-list">
         <!-- Annotation items will be dynamically inserted here -->
       </div>
-    </div>
-    <div id="annotation-controls">
-      <button id="draw-rectangle-btn">Draw Rectangle</button>
     </div>
   </div>
 </div>

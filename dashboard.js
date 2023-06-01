@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Video control
   const playBtn = document.getElementById('play-btn');
   const pauseBtn = document.getElementById('pause-btn');
-  const progressBarContainer = document.getElementById('progress-bar-container');
+  const progressBarContainer = document.getElementById(
+      'progress-bar-container');
   const progressBar = document.getElementById('progress-bar');
   let videoId;
 
@@ -27,9 +28,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // For annotation
   const annotationPopup = document.getElementById('annotation-popup');
-  const annotationDescription = document.getElementById('annotation-description');
+  const annotationDescription = document.getElementById(
+      'annotation-description');
   const annotationDropdown = document.getElementById('annotation-dropdown');
   const saveAnnotationBtn = document.getElementById('save-annotation-btn');
+  const errorMessage = document.getElementById('error-message');
+  // Retrieve the close button element
+  const closePopupBtn = document.getElementById('close-popup-btn');
 
   // Retrieve the logged-in user from local storage
   const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
@@ -93,6 +98,13 @@ document.addEventListener('DOMContentLoaded', () => {
       annotationPopup.classList.add('hidden');
     }
 
+    // Event listener for the close button
+    closePopupBtn.addEventListener('click', () => {
+      hideAnnotationPopup();
+      clearCanvas();
+      errorMessage.classList.add('hidden');
+    });
+
     saveAnnotationBtn.addEventListener('click', () => {
       // Get the annotation data
       const second = videoPlayer.currentTime; // Retrieve the annotation second value
@@ -103,48 +115,61 @@ document.addEventListener('DOMContentLoaded', () => {
         height: height, // Retrieve the rectangle height value,
       };
       const description = annotationDescription.value; // Retrieve the annotation description value
-      const dropdownValue = annotationDropdown.value; // Retrieve the dropdown value
 
-      // Create the annotation object
-      const annotation = {
-        second,
-        rectangle,
-        description,
-        dropdownValue,
-      };
+      if (description === '') {
+        // Show the error message
+        errorMessage.classList.remove('hidden');
+      } else {
+        const dropdownValue = annotationDropdown.value; // Retrieve the dropdown value
 
-      // Send a POST request to save the annotation
-      const id = videoId; // Replace 'videoId' with the actual video ID
-      fetch(`http://localhost:3000/videos/${id}/annotations`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${loggedInUser.token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(annotation),
-      })
-      .then((response) => {
-        if (response.ok) {
-          // Annotation saved successfully
-          console.log('Annotation saved successfully');
-        } else {
-          // Failed to save the annotation
-          console.error('Failed to save the annotation');
-        }
-      })
-      .catch((error) => {
-        console.error('An error occurred while saving the annotation:', error);
-      });
+        // Create the annotation object
+        const annotation = {
+          second,
+          rectangle,
+          description,
+          dropdownValue,
+        };
 
-      // Hide the annotation popup
-      hideAnnotationPopup();
+        // Send a POST request to save the annotation
+        const id = videoId; // Replace 'videoId' with the actual video ID
+        fetch(`http://localhost:3000/videos/${id}/annotations`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${loggedInUser.token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(annotation),
+        })
+        .then((response) => {
+          if (response.ok) {
+            // Annotation saved successfully
+            console.log('Annotation saved successfully');
+          } else {
+            // Failed to save the annotation
+            console.error('Failed to save the annotation');
+          }
+        })
+        .catch((error) => {
+          console.error('An error occurred while saving the annotation:',
+              error);
+        });
 
-      // Reset the form fields
-      resetForm();
+        // Hide the annotation popup
+        hideAnnotationPopup();
+
+        // Reset the form fields
+        resetForm();
+
+        // Retrieve and populate the updated annotation list
+        retrieveAndPopulateAnnotations();
+
+        errorMessage.classList.add('hidden');
+      }
     });
 
     function resetForm() {
-      const annotationDescription = document.getElementById('annotation-description');
+      const annotationDescription = document.getElementById(
+          'annotation-description');
       const annotationDropdown = document.getElementById('annotation-dropdown');
 
       // Reset the form fields to their initial values
@@ -265,10 +290,20 @@ document.addEventListener('DOMContentLoaded', () => {
       const progress = (currentTime / duration) * 100;
       progressBar.style.width = `${progress}%`;
     });
+
+    // ANNOTATION CONTROLS
+    // Event listener for the delete annotation button
+    document.addEventListener('click', (event) => {
+      if (event.target.classList.contains('delete-annotation-btn')) {
+        const annotationId = event.target.dataset.annotationId;
+        deleteAnnotation(annotationId);
+      }
+    });
   } else {
     // User is not logged in, redirect to the login page
     window.location.href = '/login.html';
   }
+
   // Function to clear the canvas
   function clearCanvas() {
     const ctx = annotationCanvas.getContext('2d');
@@ -356,6 +391,9 @@ document.addEventListener('DOMContentLoaded', () => {
           videoId = button.dataset.videoId;
           // Call a function to play the selected video using the videoId
           playVideo(videoId);
+
+          // Retrieve and populate the updated annotation list
+          retrieveAndPopulateAnnotations();
         });
       });
     })
@@ -391,6 +429,75 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .catch(error => {
       console.error('Error fetching video:', error);
+    });
+  }
+
+  // Function to generate an annotation item HTML
+  function createAnnotationItem(annotation) {
+    const {second, description, dropdownValue, _id} = annotation;
+    const item = document.createElement('li');
+    item.classList.add('annotation-item');
+    item.innerHTML = `
+    <span>${second}s</span>
+    <span>${description}</span>
+    <span>${dropdownValue}</span>
+    <button data-annotation-id="${_id}" class="delete-annotation-btn">Delete</button>
+  `;
+    return item;
+  }
+
+  // Function to populate the annotation list
+  function populateAnnotationList(annotations) {
+    const annotationList = document.getElementById('annotation-list');
+    annotationList.innerHTML = '';
+
+    annotations.forEach(annotation => {
+      const item = createAnnotationItem(annotation);
+      annotationList.appendChild(item);
+    });
+  }
+
+  // Function to retrieve and populate the annotation list
+  function retrieveAndPopulateAnnotations() {
+    fetch(`http://localhost:3000/videos/${videoId}/annotations`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${loggedInUser.token}`
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Populate the annotation list
+      populateAnnotationList(data);
+    })
+    .catch(error => {
+      console.error('Failed to retrieve annotations:', error);
+    });
+  }
+
+  // Function to delete an annotation
+  function deleteAnnotation(annotationId) {
+    fetch(`http://localhost:3000/videos/${videoId}/annotations/${annotationId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${loggedInUser.token}`,
+          },
+        })
+    .then(response => {
+      if (response.ok) {
+        // Annotation deleted successfully
+        console.log('Annotation deleted successfully');
+
+        // Retrieve and populate the updated annotation list
+        retrieveAndPopulateAnnotations();
+      } else {
+        // Failed to delete the annotation
+        console.error('Failed to delete the annotation');
+      }
+    })
+    .catch(error => {
+      console.error('Failed to delete the annotation:', error);
     });
   }
 });
