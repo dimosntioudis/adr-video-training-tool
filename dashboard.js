@@ -21,6 +21,13 @@ document.addEventListener('DOMContentLoaded', () => {
       'progress-bar-container');
   const progressBar = document.getElementById('progress-bar');
   let videoId;
+  let annotations = [];
+
+  // Variable to store the drawn annotations
+  const drawnAnnotations = new Set();
+
+  // Keep track of the currently highlighted annotation item
+  let highlightedAnnotationItems = [];
 
   // Set the canvas dimensions to match the video player dimensions
   annotationCanvas.width = videoPlayer.clientWidth;
@@ -57,8 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const rect = annotationCanvas.getBoundingClientRect();
       startX = event.clientX - rect.left;
       startY = event.clientY - rect.top;
-      console.log(startX);
-      console.log(startY);
     });
 
     // Handle mouse up event on the annotation canvas
@@ -69,22 +74,35 @@ document.addEventListener('DOMContentLoaded', () => {
       const rect = annotationCanvas.getBoundingClientRect();
       endX = event.clientX - rect.left;
       endY = event.clientY - rect.top;
-      console.log(endX);
-      console.log(endY);
-      drawRectangle(startX, startY, endX, endY);
+      width = endX - startX;
+      height = endY - startY;
+      drawRectangle(startX, startY, width, height);
       showAnnotationPopup();
       isDrawing = false;
     });
 
+    videoPlayer.addEventListener('seeked', () => {
+      // Remove highlight from the previous annotation item
+      if (highlightedAnnotationItems.length > 0) {
+        // Clear highlight for previously highlighted items
+        highlightedAnnotationItems.forEach(item => {
+          item.classList.remove('highlight');
+          item.style.backgroundColor = '';
+        });
+      }
+
+      clearCanvas();
+
+      drawnAnnotations.clear();
+    });
+
     // Function to draw a rectangle on the canvas
-    function drawRectangle(x1, y1, x2, y2) {
-      width = x2 - x1;
-      height = y2 - y1;
+    function drawRectangle(x1, y1, width, height) {
       const ctx = annotationCanvas.getContext('2d');
       ctx.strokeStyle = 'red';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.rect(x1, y1, x2 - x1, y2 - y1);
+      ctx.rect(x1, y1, width, height);
       ctx.stroke();
     }
 
@@ -270,6 +288,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // VIDEO SECTION
     playBtn.addEventListener('click', () => {
       clearCanvas();
+
+      // Remove highlight from the previous annotation item
+      if (highlightedAnnotationItems.length > 0) {
+        // Clear highlight for previously highlighted items
+        highlightedAnnotationItems.forEach(item => {
+          item.classList.remove('highlight');
+          item.style.backgroundColor = '';
+        });
+      }
+
       videoPlayer.play();
     });
 
@@ -289,6 +317,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const duration = videoPlayer.duration;
       const progress = (currentTime / duration) * 100;
       progressBar.style.width = `${progress}%`;
+
+      // Redraw the annotations based on the current time
+      redrawAnnotations(currentTime);
     });
 
     // ANNOTATION CONTROLS
@@ -302,6 +333,14 @@ document.addEventListener('DOMContentLoaded', () => {
   } else {
     // User is not logged in, redirect to the login page
     window.location.href = '/login.html';
+  }
+
+  // Function to redraw the annotations based on the current time
+  function redrawAnnotations(currentTime) {
+    // // Clear the canvas before redrawing the annotations
+    // clearCanvas();
+
+    drawAnnotation(annotations, currentTime);
   }
 
   // Function to clear the canvas
@@ -342,6 +381,9 @@ document.addEventListener('DOMContentLoaded', () => {
         playButtons.forEach(button => {
           button.addEventListener('click', () => {
             videoId = button.dataset.videoId;
+
+            clearCanvas();
+
             // Call a function to play the selected video using the videoId
             playVideo(videoId);
           });
@@ -389,6 +431,9 @@ document.addEventListener('DOMContentLoaded', () => {
       playButtons.forEach(button => {
         button.addEventListener('click', () => {
           videoId = button.dataset.videoId;
+
+          clearCanvas();
+
           // Call a function to play the selected video using the videoId
           playVideo(videoId);
 
@@ -426,6 +471,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Play the video
       videoPlayer.play();
+
+      // // Draw the annotations on the canvas
+      // annotations.forEach(annotation => {
+      //   drawAnnotation(annotation);
+      // });
     })
     .catch(error => {
       console.error('Error fetching video:', error);
@@ -437,6 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const {second, description, dropdownValue, _id} = annotation;
     const item = document.createElement('li');
     item.classList.add('annotation-item');
+    item.setAttribute('data-annotation-id', _id);
     item.innerHTML = `
     <span>${second}s</span>
     <span>${description}</span>
@@ -450,6 +501,9 @@ document.addEventListener('DOMContentLoaded', () => {
   function populateAnnotationList(annotations) {
     const annotationList = document.getElementById('annotation-list');
     annotationList.innerHTML = '';
+
+    // Sort the annotations based on the `second` property
+    annotations.sort((a, b) => a.second - b.second);
 
     annotations.forEach(annotation => {
       const item = createAnnotationItem(annotation);
@@ -467,12 +521,46 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .then(response => response.json())
     .then(data => {
+      annotations = data;
+
       // Populate the annotation list
       populateAnnotationList(data);
     })
     .catch(error => {
       console.error('Failed to retrieve annotations:', error);
     });
+  }
+
+  // Function to draw an annotation rectangle on the canvas
+  function drawAnnotation(annotations, currentTime) {
+    // Draw the filtered annotations on the canvas
+    for (const annotation of annotations) {
+      const {second, rectangle} = annotation;
+      const {x, y, width, height} = rectangle;
+
+      // Calculate the time in the video corresponding to the annotation's second
+      const timeInSeconds = second;
+
+      if (Math.floor(timeInSeconds) === Math.floor(currentTime)
+          && !drawnAnnotations.has(annotation)) {
+        // Add the annotation to the drawn annotations set
+        drawnAnnotations.add(annotation);
+        videoPlayer.pause();
+        drawRectangle(x, y, width, height);
+
+        // Find the corresponding annotation item
+        const annotationId = annotation._id; // Replace '_id' with the actual identifier of the annotation
+        const annotationItem = document.querySelector(`li[data-annotation-id="${annotationId}"]`);
+
+        // Apply a CSS class or inline styling to highlight the annotation item
+        annotationItem.classList.add('highlight'); // Add a CSS class
+        // OR
+        annotationItem.style.backgroundColor = 'yellow'; // Apply inline styling
+
+        // Set the currently highlighted item to the new annotation item
+        highlightedAnnotationItems.push(annotationItem);
+      }
+    }
   }
 
   // Function to delete an annotation

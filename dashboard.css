@@ -105,6 +105,8 @@ header {
 
 #video-player-section {
   position: relative;
+  width: 800px;
+  height: 500px;
 }
 
 #video-player {
@@ -116,6 +118,10 @@ header {
   position: absolute;
   top: 0;
   left: 0;
+}
+
+#annotation-controls {
+  padding: 30px 0; /* Add 10 pixels of padding on the top and bottom */
 }
 
 .hidden {
