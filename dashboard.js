@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const progressBarContainer = document.getElementById(
       'progress-bar-container');
   const progressBar = document.getElementById('progress-bar');
+  const timeDisplay = document.getElementById('time-display');
   let videoId;
   let annotations = [];
 
@@ -318,9 +319,26 @@ document.addEventListener('DOMContentLoaded', () => {
       const progress = (currentTime / duration) * 100;
       progressBar.style.width = `${progress}%`;
 
+      // Update the time display
+      const currentTimeInSeconds = Math.floor(currentTime);
+      const durationInSeconds = Math.floor(duration);
+      timeDisplay.textContent = `${formatTime(currentTimeInSeconds)} / ${formatTime(durationInSeconds)}`;
+
       // Redraw the annotations based on the current time
       redrawAnnotations(currentTime);
     });
+
+    // Function to format time in MM:SS format
+    function formatTime(timeInSeconds) {
+      const minutes = Math.floor(timeInSeconds / 60);
+      const seconds = timeInSeconds % 60;
+      return `${padZero(minutes)}:${padZero(seconds)}`;
+    }
+
+    // Function to pad single digits with leading zero
+    function padZero(number) {
+      return number.toString().padStart(2, '0');
+    }
 
     // ANNOTATION CONTROLS
     // Event listener for the delete annotation button
