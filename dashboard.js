@@ -348,6 +348,22 @@ document.addEventListener('DOMContentLoaded', () => {
         deleteAnnotation(annotationId);
       }
     });
+
+    document.addEventListener('click', (event) => {
+      if (event.target.classList.contains('jump-to-btn')) {
+        const annotationId = event.target.dataset.annotationId;
+
+        // Retrieve the annotation details using the ID and perform the jump-to operation
+        const annotation = getAnnotationById(annotationId);
+        if (annotation) {
+          const jumpToSecond = annotation.second;
+          videoPlayer.currentTime = jumpToSecond;
+          videoPlayer.play();
+        }
+      }
+    });
+
+
   } else {
     // User is not logged in, redirect to the login page
     window.location.href = '/login.html';
@@ -558,6 +574,7 @@ document.addEventListener('DOMContentLoaded', () => {
     <td>${dropdownValue}</td>
     <td>
       <button data-annotation-id="${_id}" class="delete-annotation-btn">Delete</button>
+      <button data-annotation-id="${_id}" class="jump-to-btn">Jump to</button>
     </td>
   `;
     return row;
@@ -627,6 +644,36 @@ document.addEventListener('DOMContentLoaded', () => {
         highlightedAnnotationItems.push(annotationItem);
       }
     }
+  }
+
+  function getAnnotationById(annotationId) {
+    const annotationTable = document.getElementById('annotation-table');
+
+    if (annotationTable) {
+      // Find the annotation row with the specified ID
+      const annotationRow = annotationTable.querySelector(`tr[data-annotation-id="${annotationId}"]`);
+
+      if (annotationRow) {
+        // Extract the annotation data from the row cells
+        const cells = annotationRow.cells;
+
+        // Get the text content from the cells
+        const second = cells[0].textContent.replace('s', '');
+        const description = cells[1].textContent;
+        const category = cells[2].textContent;
+
+        // Return an object with the annotation data
+        return {
+          id: annotationId,
+          second: parseInt(second),
+          description: description,
+          category: category
+        };
+      }
+    }
+
+    // Return null if the annotation was not found
+    return null;
   }
 
   // Function to delete an annotation
