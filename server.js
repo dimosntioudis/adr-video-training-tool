@@ -158,6 +158,38 @@ app.post('/upload', authenticateToken, upload.single('video'), async (req, res) 
   }
 });
 
+// DELETE Video route (protected)
+app.delete('/video/:id', authenticateToken, async (req, res) => {
+  try {
+    const videoId = req.params.id;
+
+    // Find the video by ID
+    const video = await Video.findById(videoId);
+
+    // Check if the video exists
+    if (!video) {
+      return res.status(404).json({ error: 'Video not found' });
+    }
+
+    // Check if the authenticated user owns the video
+    if (video.user.toString() !== req.user.userId) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    // Delete the video document from the database
+    await Video.deleteOne({ _id: videoId });
+
+    // Delete the video file from the storage
+    fs.unlinkSync(video.path);
+
+    res.json({ message: 'Video deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 // GET All Videos route (protected)
 app.get('/videos', authenticateToken, async (req, res) => {
   try {

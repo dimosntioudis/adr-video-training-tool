@@ -440,6 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <p>Id: ${video._id}</p>
           <p>Path: ${video.path}</p>
           <button class="play-button" data-video-id="${video._id}">Play</button>
+          <button class="delete-button" data-video-id="${video._id}">Delete</button>
         `;
         videoListElement.appendChild(videoItem);
       });
@@ -459,6 +460,36 @@ document.addEventListener('DOMContentLoaded', () => {
           retrieveAndPopulateAnnotations();
         });
       });
+
+      // Attach event listeners to the delete buttons
+      const deleteButtons = document.querySelectorAll('.delete-button');
+      deleteButtons.forEach(button => {
+        button.addEventListener('click', async () => {
+          const videoId = button.dataset.videoId;
+
+          try {
+            // Send a DELETE request to the server to delete the video
+            const response = await fetch(`http://localhost:3000/video/${videoId}`, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `Bearer ${loggedInUser.token}`,
+              },
+            });
+
+            if (response.ok) {
+              // Video deleted successfully
+              // Reload the page or update the video list as needed
+              location.reload();
+            } else {
+              // Error occurred while deleting the video
+              console.error('Failed to delete video');
+            }
+          } catch (error) {
+            console.error(error);
+          }
+        });
+      });
+
     })
     .catch(error => {
       console.error('Failed to fetch user videos:', error);
@@ -500,19 +531,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Function to generate an annotation item HTML
+  // // Function to generate an annotation item HTML
+  // function createAnnotationItem(annotation) {
+  //   const {second, description, dropdownValue, _id} = annotation;
+  //   const item = document.createElement('li');
+  //   item.classList.add('annotation-item');
+  //   item.setAttribute('data-annotation-id', _id);
+  //   item.innerHTML = `
+  //   <span>${second}s</span>
+  //   <span>${description}</span>
+  //   <span>${dropdownValue}</span>
+  //   <button data-annotation-id="${_id}" class="delete-annotation-btn">Delete</button>
+  // `;
+  //   return item;
+  // }
+
+  // Function to generate an annotation row in the table
   function createAnnotationItem(annotation) {
-    const {second, description, dropdownValue, _id} = annotation;
-    const item = document.createElement('li');
-    item.classList.add('annotation-item');
-    item.setAttribute('data-annotation-id', _id);
-    item.innerHTML = `
-    <span>${second}s</span>
-    <span>${description}</span>
-    <span>${dropdownValue}</span>
-    <button data-annotation-id="${_id}" class="delete-annotation-btn">Delete</button>
+    const { second, description, dropdownValue, _id } = annotation;
+    const row = document.createElement('tr');
+    row.classList.add('annotation-row');
+    row.setAttribute('data-annotation-id', _id);
+    row.innerHTML = `
+    <td>${second}s</td>
+    <td>${description}</td>
+    <td>${dropdownValue}</td>
+    <td>
+      <button data-annotation-id="${_id}" class="delete-annotation-btn">Delete</button>
+    </td>
   `;
-    return item;
+    return row;
   }
 
   // Function to populate the annotation list
@@ -568,7 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Find the corresponding annotation item
         const annotationId = annotation._id; // Replace '_id' with the actual identifier of the annotation
-        const annotationItem = document.querySelector(`li[data-annotation-id="${annotationId}"]`);
+        const annotationItem = document.querySelector(`tr[data-annotation-id="${annotationId}"]`);
 
         // Apply a CSS class or inline styling to highlight the annotation item
         annotationItem.classList.add('highlight'); // Add a CSS class
