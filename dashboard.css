@@ -241,4 +241,55 @@ body {
   font-family: "Roboto","Arial",sans-serif;
 }
 
+/* Table styles */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Table header styles */
+.table thead {
+  background-color: #f1f1f1;
+}
+
+/* Table header cells */
+.table th {
+  padding: 10px;
+  text-align: left;
+  font-weight: bold;
+}
+
+/* Table body styles */
+.table tbody {
+  background-color: #fff;
+}
+
+/* Table body rows */
+.table tr {
+  transition: background-color 0.3s ease;
+}
+
+/* Alternating row colors */
+.table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+/* Hover effect on rows */
+.table tr:hover {
+  background-color: #eaeaea;
+}
+
+/* Annotation row styles */
+.annotation-row {
+  background-color: #f1f1f1;
+}
+
+/* Highlighted annotation row styles */
+.highlight {
+  background-color: yellow;
+  font-weight: bold;
+}
+
+
+
 
