@@ -272,7 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Clear the logged-in user from local storage
       localStorage.removeItem('loggedInUser');
       // Redirect to the login page
-      window.location.href = '/login.html';
+      window.location.href = '/video-player/login.html';
     });
 
     // VIDEO REVIEW SECTION
