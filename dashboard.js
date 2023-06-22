@@ -7,6 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const logoutLink = document.getElementById('logout-link');
   const closeButton = document.getElementById('close-button');
 
+  const uploadLink = document.getElementById('upload-link');
+  const placeholderPlayButton = document.getElementById('placeholder-play-button');
+  const placeholderMessage = document.getElementById('placeholder-message');
+
   // For drawing
   const videoPlayer = document.getElementById('video-player');
   const annotationCanvas = document.getElementById('annotation-canvas');
@@ -23,6 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const timeDisplay = document.getElementById('time-display');
   let videoId;
   let annotations = [];
+
+  const zoomButtonPlus = document.getElementById('zoom-btn-plus');
+  const zoomButtonMinus = document.getElementById('zoom-btn-minus');
+
+  // Set initial zoom level
+  let zoomLevel = 1;
 
   // Variable to store the drawn annotations
   const drawnAnnotations = new Set();
@@ -47,8 +57,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // Retrieve the logged-in user from local storage
   const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
 
+  const seekBackwardBtn = document.getElementById('seek-backward-btn');
+  const seekForwardBtn = document.getElementById('seek-forward-btn');
+
   // Check if the user is logged in
   if (loggedInUser) {
+    seekBackwardBtn.addEventListener('click', () => {
+      // Perform seeking backward logic (e.g., adjust video playback time by -5 seconds)
+      videoPlayer.currentTime -= 5;
+      videoPlayer.play();
+    });
+
+    seekForwardBtn.addEventListener('click', () => {
+      // Perform seeking forward logic (e.g., adjust video playback time by +5 seconds)
+      videoPlayer.currentTime += 5;
+      videoPlayer.play();
+    });
+
     // DRAWING SECTION
     // Add event listeners to the draw rectangle button
     drawRectangleBtn.addEventListener('click', () => {
@@ -89,6 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         highlightedAnnotationItems.forEach(item => {
           item.classList.remove('highlight');
           item.style.backgroundColor = '';
+          item.style.color = '#333';
         });
       }
 
@@ -103,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.strokeStyle = 'red';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.rect(x1, y1, width, height);
+      ctx.rect(x1 / zoomLevel, y1 / zoomLevel, width / zoomLevel, height / zoomLevel);
       ctx.stroke();
     }
 
@@ -151,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Send a POST request to save the annotation
         const id = videoId; // Replace 'videoId' with the actual video ID
-        fetch(`http://localhost:3000/videos/${id}/annotations`, {
+        fetch(`http://localhost:3001/videos/${id}/annotations`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${loggedInUser.token}`,
@@ -198,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // PERSONAL INFO SECTION
     // Make a request to the server to fetch the user information
-    fetch('http://localhost:3000/dashboard', {
+    fetch('http://localhost:3001/dashboard', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${loggedInUser.token}`,
@@ -209,9 +235,15 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(data => {
       // Display the user information in the Personal Information section
       const {user} = data;
-      const personalInfoElement = document.getElementById('personal-info');
-      personalInfoElement.innerHTML = `
-        <p>Username: ${user.username}</p>
+      // const personalInfoElement = document.getElementById('personal-info');
+      // personalInfoElement.innerHTML = `
+      //   <p>Username: ${user.username}</p>
+      // `;
+
+      // Update the "Welcome to the Dashboard" message with the username
+      const welcomeMessageElement = document.getElementById('welcome-message');
+      welcomeMessageElement.innerHTML = `
+        <h3>Welcome to the Dashboard ${user.username}!</h3>
       `;
     })
     .catch(error => {
@@ -221,6 +253,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // UPLOAD SECTION
     uploadButton.addEventListener('click', () => {
+      uploadPopup.style.display = 'block';
+    });
+
+    uploadLink.addEventListener('click', (event) => {
+      event.preventDefault(); // Prevent the default behavior of the link
       uploadPopup.style.display = 'block';
     });
 
@@ -242,7 +279,7 @@ document.addEventListener('DOMContentLoaded', () => {
       formData.append('title', videoTitle);
       formData.append('description', videoDescription);
 
-      const response = await fetch('http://localhost:3000/upload', {
+      const response = await fetch('http://localhost:3001/upload', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${loggedInUser.token}`
@@ -258,6 +295,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('video-description').value = '';
 
         uploadPopup.remove();
+
+        videoListElement.innerHTML = '';
 
         // Fetch and display the updated video list
         await fetchVideoList();
@@ -296,6 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
         highlightedAnnotationItems.forEach(item => {
           item.classList.remove('highlight');
           item.style.backgroundColor = '';
+          item.style.color = "#333";
         });
       }
 
@@ -328,11 +368,22 @@ document.addEventListener('DOMContentLoaded', () => {
       redrawAnnotations(currentTime);
     });
 
-    // Function to format time in MM:SS format
     function formatTime(timeInSeconds) {
-      const minutes = Math.floor(timeInSeconds / 60);
-      const seconds = timeInSeconds % 60;
-      return `${padZero(minutes)}:${padZero(seconds)}`;
+      const hours = Math.floor(timeInSeconds / 3600);
+      const minutes = Math.floor((timeInSeconds % 3600) / 60);
+      const seconds = Math.floor(timeInSeconds % 60);
+      const milliseconds = Math.floor((timeInSeconds % 1) * 1000);
+
+      const formattedHours = String(hours).padStart(2, '0');
+      const formattedMinutes = String(minutes).padStart(2, '0');
+      const formattedSeconds = String(seconds).padStart(2, '0');
+      const formattedMilliseconds = String(milliseconds).padStart(2, '0');
+
+      if (hours > 0) {
+        return `${formattedHours}:${formattedMinutes}:${formattedSeconds}:${formattedMilliseconds}`;
+      } else {
+        return `${formattedMinutes}:${formattedSeconds}:${formattedMilliseconds}`;
+      }
     }
 
     // Function to pad single digits with leading zero
@@ -363,7 +414,49 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
+    // Add event listener to zoom button
+    zoomButtonPlus.addEventListener('click', handleZoomPlus);
+    zoomButtonMinus.addEventListener('click', handleZoomMinus);
 
+    // Function to handle zoom
+    function handleZoomPlus() {
+      // Increase zoom level by 0.1
+      zoomLevel += 0.1;
+
+      if (zoomLevel > 2.0) {
+        zoomLevel = 2.0;
+      }
+
+      // Apply zoom to video player
+      videoPlayer.style.transform = `scale(${zoomLevel})`;
+      annotationCanvas.style.transform = `scale(${zoomLevel})`;
+    }
+
+    // Function to handle zoom
+    function handleZoomMinus() {
+      // Decrease zoom level by 0.1
+      zoomLevel -= 0.1;
+
+      if (zoomLevel < 1.0) {
+        zoomLevel = 1.0;
+      }
+
+      // Apply zoom to video player
+      videoPlayer.style.transform = `scale(${zoomLevel})`;
+      annotationCanvas.style.transform = `scale(${zoomLevel})`;
+    }
+
+    function updateCanvasSize() {
+      // Set canvas dimensions to match video player dimensions
+      annotationCanvas.width = videoPlayer.clientWidth;
+      annotationCanvas.height = videoPlayer.clientHeight;
+    }
+
+    // Update canvas size on initial page load
+    updateCanvasSize();
+
+    // Update canvas size on window resize
+    window.addEventListener('resize', updateCanvasSize);
   } else {
     // User is not logged in, redirect to the login page
     window.location.href = '/login.html';
@@ -387,7 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const debounceSearch = _.debounce((searchQuery) => {
     if (searchQuery.trim() !== '') {
       // Make a request to the server to fetch search suggestions based on the search query
-      fetch(`http://localhost:3000/search?title=${searchQuery}`, {
+      fetch(`http://localhost:3001/search?title=${searchQuery}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${loggedInUser.token}`,
@@ -420,6 +513,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Call a function to play the selected video using the videoId
             playVideo(videoId);
+
+            // Retrieve and populate the updated annotation list
+            retrieveAndPopulateAnnotations();
           });
         });
       })
@@ -436,7 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Function to fetch and display the video list
   async function fetchVideoList() {
     // Make a request to the server to fetch the user's videos
-    fetch('http://localhost:3000/videos', {
+    fetch('http://localhost:3001/videos', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${loggedInUser.token}`,
@@ -453,8 +549,8 @@ document.addEventListener('DOMContentLoaded', () => {
         videoItem.classList.add('swiper-slide'); // Add the swiper-slide class
         videoItem.innerHTML = `
           <p>Title: ${video.title}</p>
-          <p>Id: ${video._id}</p>
-          <p>Path: ${video.path}</p>
+<!--          <p>Id: ${video._id}</p>-->
+<!--          <p>Path: ${video.path}</p>-->
           <button class="play-button" data-video-id="${video._id}">Play</button>
           <button class="delete-button" data-video-id="${video._id}">Delete</button>
         `;
@@ -485,7 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
           try {
             // Send a DELETE request to the server to delete the video
-            const response = await fetch(`http://localhost:3000/video/${videoId}`, {
+            const response = await fetch(`http://localhost:3001/video/${videoId}`, {
               method: 'DELETE',
               headers: {
                 'Authorization': `Bearer ${loggedInUser.token}`,
@@ -516,7 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Function to play the video
   function playVideo(videoId) {
     // Retrieve the video based on the videoId
-    fetch(`http://localhost:3000/videos/${videoId}`, {
+    fetch(`http://localhost:3001/videos/${videoId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${loggedInUser.token}`,
@@ -529,10 +625,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const videoPath = video.path;
 
       // Construct the URL to the video file
-      const videoURL = `http://localhost:3000/${videoPath}`;
+      const videoURL = `http://localhost:3001/${videoPath}`;
 
       // Set the src attribute of the video player to the videoURL
       videoPlayer.src = videoURL;
+
+      placeholderPlayButton.style.display = 'none';
+      placeholderMessage.style.display = 'none';
 
       // Play the video
       videoPlayer.play();
@@ -573,8 +672,11 @@ document.addEventListener('DOMContentLoaded', () => {
     <td>${description}</td>
     <td>${dropdownValue}</td>
     <td>
-      <button data-annotation-id="${_id}" class="delete-annotation-btn">Delete</button>
-      <button data-annotation-id="${_id}" class="jump-to-btn">Jump to</button>
+      <div class="annotation-button-container">
+        <i data-annotation-id="${_id}" class="fas fa-edit edit-annotation-btn"></i>
+        <i data-annotation-id="${_id}" class="fas fa-trash delete-annotation-btn"></i>
+        <i data-annotation-id="${_id}" class="fas fa-eye jump-to-btn"></i>
+      </div>
     </td>
   `;
     return row;
@@ -596,7 +698,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Function to retrieve and populate the annotation list
   function retrieveAndPopulateAnnotations() {
-    fetch(`http://localhost:3000/videos/${videoId}/annotations`, {
+    fetch(`http://localhost:3001/videos/${videoId}/annotations`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${loggedInUser.token}`
@@ -638,7 +740,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Apply a CSS class or inline styling to highlight the annotation item
         annotationItem.classList.add('highlight'); // Add a CSS class
         // OR
-        annotationItem.style.backgroundColor = 'yellow'; // Apply inline styling
+        annotationItem.style.backgroundColor = '#4CAF50'; // Apply inline styling
+        annotationItem.style.color = 'white';
 
         // Set the currently highlighted item to the new annotation item
         highlightedAnnotationItems.push(annotationItem);
@@ -678,7 +781,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Function to delete an annotation
   function deleteAnnotation(annotationId) {
-    fetch(`http://localhost:3000/videos/${videoId}/annotations/${annotationId}`,
+    fetch(`http://localhost:3001/videos/${videoId}/annotations/${annotationId}`,
         {
           method: 'DELETE',
           headers: {

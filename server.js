@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const fs = require('fs');
 const app = express();
-const port = 3000;
+const port = 3001;
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
@@ -119,7 +119,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 30 * 1024 * 1024, // Maximum file size of 30MB
+    fileSize: 100 * 1024 * 1024, // Maximum file size of 30MB
   },
 });
 
