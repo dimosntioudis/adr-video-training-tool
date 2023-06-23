@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const annotationSchema = new mongoose.Schema({
+  frameNumber : { type: Number, required: true},
   second: { type: Number, required: true },
   rectangle: {
     x: { type: Number, required: true },

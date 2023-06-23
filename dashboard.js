@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function drawRectangle(x1, y1, width, height) {
       const ctx = annotationCanvas.getContext('2d');
       ctx.strokeStyle = 'red';
-      ctx.lineWidth = 2;
+      ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.rect(x1 / zoomLevel, y1 / zoomLevel, width / zoomLevel, height / zoomLevel);
       ctx.stroke();
@@ -153,6 +153,10 @@ document.addEventListener('DOMContentLoaded', () => {
     saveAnnotationBtn.addEventListener('click', () => {
       // Get the annotation data
       const second = videoPlayer.currentTime; // Retrieve the annotation second value
+
+      const frameRate = 30;
+      const frameNumber = Math.floor(second * frameRate);
+
       const rectangle = {
         x: startX, // Retrieve the rectangle x value,
         y: startY, // Retrieve the rectangle y value,
@@ -169,6 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Create the annotation object
         const annotation = {
+          frameNumber,
           second,
           rectangle,
           description,
@@ -792,6 +797,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (response.ok) {
         // Annotation deleted successfully
         console.log('Annotation deleted successfully');
+
+        clearCanvas();
 
         // Retrieve and populate the updated annotation list
         retrieveAndPopulateAnnotations();

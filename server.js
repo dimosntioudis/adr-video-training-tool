@@ -264,7 +264,7 @@ app.get('/videos/:videoId/annotations', authenticateToken, async (req, res) => {
 app.post('/videos/:videoId/annotations', authenticateToken, async (req, res) => {
   try {
     const videoId = req.params.videoId;
-    const { second, rectangle, description, dropdownValue } = req.body;
+    const { frameNumber, second, rectangle, description, dropdownValue } = req.body;
 
     // Find the video by ID
     const video = await Video.findById(videoId);
@@ -275,6 +275,7 @@ app.post('/videos/:videoId/annotations', authenticateToken, async (req, res) => 
 
     // Create a new annotation object
     const annotation = {
+      frameNumber,
       second,
       rectangle,
       description,
