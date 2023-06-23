@@ -480,3 +480,41 @@ body, button {
   margin-bottom: 10px;
 }
 
+#arrow-table-container {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  opacity: 0.5;
+}
+
+#arrow-table {
+  width: 100px;
+  height: 100px;
+  table-layout: fixed;
+  background-color: transparent;
+}
+
+#arrow-table td {
+  width: 33.33%;
+  height: 33.33%;
+  position: relative;
+  text-align: center;
+}
+
+.arrow-cell {
+  position: relative;
+}
+
+.arrow-cell i {
+  font-size: 30px;
+  line-height: 0;
+}
+
+.arrow-cell i.fa-arrow-up,
+.arrow-cell i.fa-arrow-down {
+  margin: 5px 0;
+}
+
+.arrow-cell i:hover {
+  color: #4CAF50; /* Change the hover color as desired */
+}
