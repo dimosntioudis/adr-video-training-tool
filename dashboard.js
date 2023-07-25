@@ -8,7 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeButton = document.getElementById('close-button');
 
   const uploadLink = document.getElementById('upload-link');
-  const placeholderPlayButton = document.getElementById('placeholder-play-button');
+  const placeholderPlayButton = document.getElementById(
+      'placeholder-play-button');
   const placeholderMessage = document.getElementById('placeholder-message');
 
   // For drawing
@@ -28,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const timeDisplay = document.getElementById('time-display');
   let videoId;
   let annotations = [];
+  let annotationsMap = [];
 
   const zoomButtonPlus = document.getElementById('zoom-btn-plus');
   const zoomButtonMinus = document.getElementById('zoom-btn-minus');
@@ -46,6 +48,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Keep track of the currently highlighted annotation item
   let highlightedAnnotationItems = [];
+
+  let animationFrameId; // Variable to keep track of the requestAnimationFrame ID
+  let isPaused = false; // Flag to keep track of whether the video is paused by the pause button
+  let speed = 1;
+  let fps = 30;
+  let frameDuration = 1000 / (fps * speed);
+  let currentFrameNumber = 0;
 
   // Set the canvas dimensions to match the video player dimensions
   annotationCanvas.width = videoPlayer.clientWidth;
@@ -70,35 +79,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Check if the user is logged in
   if (loggedInUser) {
-    seekBackwardBtn.addEventListener('click', () => {const frameRate = 30; // Replace with the actual frame rate of your video
-      const currentTime = videoPlayer.currentTime;
-      const targetTime = currentTime - (1 / frameRate);
-      videoPlayer.currentTime = targetTime >= 0 ? targetTime : 0;
-      videoPlayer.pause();
-    });
-
-    seekForwardBtn.addEventListener('click', () => {
-      const frameRate = 30; // Replace with the actual frame rate of your video
-      const currentTime = videoPlayer.currentTime;
-      const targetTime = currentTime + (1 / frameRate);
-      const videoDuration = videoPlayer.duration;
-      videoPlayer.currentTime = targetTime <= videoDuration ? targetTime : videoDuration;
-      videoPlayer.pause();
-    });
-
     refreshBtn.addEventListener('click', () => {
       videoPlayer.currentTime = 0;
-      videoPlayer.play();
+      isPaused = false;
+      playVideoFrameByFrame(videoPlayer.currentTime);
     });
 
     // DRAWING SECTION
-    // Add event listeners to the draw rectangle button
-    drawRectangleBtn.addEventListener('click', () => {
-      // Pause video playback
-      videoPlayer.pause();
-      isDrawing = true;
-    });
-
     // Handle mouse down event on the annotation canvas
     annotationCanvas.addEventListener('mousedown', (event) => {
       if (!isDrawing) {
@@ -124,29 +111,14 @@ document.addEventListener('DOMContentLoaded', () => {
       isDrawing = false;
     });
 
-    videoPlayer.addEventListener('seeked', () => {
-      // Remove highlight from the previous annotation item
-      if (highlightedAnnotationItems.length > 0) {
-        // Clear highlight for previously highlighted items
-        highlightedAnnotationItems.forEach(item => {
-          item.classList.remove('highlight');
-          item.style.backgroundColor = '';
-          item.style.color = '#333';
-        });
-      }
-
-      clearCanvas();
-
-      drawnAnnotations.clear();
-    });
-
     // Function to draw a rectangle on the canvas
     function drawRectangle(x1, y1, width, height) {
       const ctx = annotationCanvas.getContext('2d');
       ctx.strokeStyle = 'red';
       ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.rect(x1 / zoomLevel, y1 / zoomLevel, width / zoomLevel, height / zoomLevel);
+      ctx.rect(x1 / zoomLevel, y1 / zoomLevel, width / zoomLevel,
+          height / zoomLevel);
       ctx.stroke();
     }
 
@@ -347,34 +319,158 @@ document.addEventListener('DOMContentLoaded', () => {
       debounceSearch(searchQuery);
     });
 
-    // VIDEO SECTION
-    playBtn.addEventListener('click', () => {
-      clearCanvas();
-
-      // Remove highlight from the previous annotation item
-      if (highlightedAnnotationItems.length > 0) {
-        // Clear highlight for previously highlighted items
-        highlightedAnnotationItems.forEach(item => {
-          item.classList.remove('highlight');
-          item.style.backgroundColor = '';
-          item.style.color = "#333";
-        });
+    function playVideoFrameByFrame() {
+      function handlePauseButtonClick() {
+        if (isPaused) {
+          isPaused = false;
+          playFrame(videoPlayer.currentTime); // Continue frame-by-frame playback
+        } else {
+          isPaused = true;
+          videoPlayer.pause();
+          cancelAnimationFrame(animationFrameId); // Stop the frame-by-frame playback
+        }
       }
 
-      videoPlayer.play();
-    });
+      function handlePlayButtonClick() {
+        clearCanvas();
 
+        // Remove highlight from the previous annotation item
+        if (highlightedAnnotationItems.length > 0) {
+          // Clear highlight for previously highlighted items
+          highlightedAnnotationItems.forEach(item => {
+            item.classList.remove('highlight');
+            item.style.backgroundColor = '';
+            item.style.color = "#333";
+          });
+        }
 
-    pauseBtn.addEventListener('click', () => {
-      videoPlayer.pause();
-    });
+        isPaused = false;
+        const nextTime = videoPlayer.currentTime + frameDuration / 1000;
+        animationFrameId = requestAnimationFrame(() => playFrame(nextTime));
+      }
 
-    progressBarContainer.addEventListener('click', (event) => {
-      const clickX = event.offsetX;
-      const progressBarWidth = progressBarContainer.offsetWidth;
-      const seekTime = (clickX / progressBarWidth) * videoPlayer.duration;
-      videoPlayer.currentTime = seekTime;
-    });
+      function handleRefreshButtonClick() {
+        // Remove highlight from the previous annotation item
+        if (highlightedAnnotationItems.length > 0) {
+          // Clear highlight for previously highlighted items
+          highlightedAnnotationItems.forEach(item => {
+            item.classList.remove('highlight');
+            item.style.backgroundColor = '';
+            item.style.color = "#333";
+          });
+        }
+
+        clearCanvas();
+        videoPlayer.currentTime = 0;
+        isPaused = false;
+        playVideoFrameByFrame(videoPlayer.currentTime);
+      }
+
+      function handleDrawButtonClick() {
+        isPaused = true;
+        videoPlayer.pause();
+        cancelAnimationFrame(animationFrameId); // Stop the frame-by-frame playback
+        isDrawing = true;
+      }
+
+      seekBackwardBtn.addEventListener('click', () => {
+        const frameRate = fps; // Replace with the actual frame rate of your video
+        const currentTime = videoPlayer.currentTime;
+        const targetTime = currentTime - (10 / frameRate);
+        videoPlayer.currentTime = targetTime >= 0 ? targetTime : 0;
+        playFrame(videoPlayer.currentTime);
+      });
+
+      seekForwardBtn.addEventListener('click', () => {
+        const frameRate = fps; // Replace with the actual frame rate of your video
+        const currentTime = videoPlayer.currentTime;
+        const targetTime = currentTime + (10 / frameRate);
+        const videoDuration = videoPlayer.duration;
+        videoPlayer.currentTime = targetTime <= videoDuration ? targetTime
+            : videoDuration;
+        playFrame(videoPlayer.currentTime);
+      });
+
+      document.addEventListener('click', (event) => {
+        if (event.target.classList.contains('jump-to-btn')) {
+          const annotationId = event.target.dataset.annotationId;
+
+          // Retrieve the annotation details using the ID and perform the jump-to operation
+          const annotation = getAnnotationById(annotationId);
+          if (annotation) {
+            clearCanvas();
+
+            // Remove highlight from the previous annotation item
+            if (highlightedAnnotationItems.length > 0) {
+              // Clear highlight for previously highlighted items
+              highlightedAnnotationItems.forEach(item => {
+                item.classList.remove('highlight');
+                item.style.backgroundColor = '';
+                item.style.color = "#333";
+              });
+            }
+
+            const jumpToSecond = annotation.second;
+            videoPlayer.currentTime = jumpToSecond;
+            isPaused = false;
+            playVideoFrameByFrame(videoPlayer.currentTime);
+          }
+        }
+      });
+
+      function playFrame(currentTime) {
+        if (!isPaused) {
+          videoPlayer.currentTime = currentTime;
+          currentFrameNumber = Math.floor(currentTime * fps);
+
+          // Find if any rectangle exists for the currentFrameNumber
+          const targetRectangleData = annotations.find(item => item.frameNumber === currentFrameNumber);
+          if (targetRectangleData) {
+            const { x, y, width, height } = targetRectangleData.rectangle;
+            isPaused = true;
+            videoPlayer.pause();
+            drawRectangle(x, y, width, height);
+
+            // Find the corresponding annotation item
+            const annotationId = targetRectangleData._id; // Replace '_id' with the actual identifier of the annotation
+            const annotationItem = document.querySelector(`tr[data-annotation-id="${annotationId}"]`);
+
+            // Apply a CSS class or inline styling to highlight the annotation item
+            annotationItem.classList.add('highlight'); // Add a CSS class
+            // OR
+            annotationItem.style.backgroundColor = '#4CAF50'; // Apply inline styling
+            annotationItem.style.color = 'white';
+
+            // Set the currently highlighted item to the new annotation item
+            highlightedAnnotationItems.push(annotationItem);
+
+            cancelAnimationFrame(animationFrameId); // Stop the frame-by-frame playback
+          } else {
+            const nextTime = currentTime + frameDuration / 1000;
+            animationFrameId = requestAnimationFrame(() => playFrame(nextTime));
+          }
+        }
+      }
+
+      pauseBtn.addEventListener('click', handlePauseButtonClick);
+
+      playBtn.addEventListener('click', handlePlayButtonClick);
+
+      refreshBtn.addEventListener('click', handleRefreshButtonClick);
+
+      drawRectangleBtn.addEventListener('click', handleDrawButtonClick);
+
+      progressBarContainer.addEventListener('click', (event) => {
+        const clickX = event.offsetX;
+        const progressBarWidth = progressBarContainer.offsetWidth;
+        const seekTime = (clickX / progressBarWidth) * videoPlayer.duration;
+        videoPlayer.currentTime = seekTime;
+        playFrame(videoPlayer.currentTime); // Continue frame-by-frame playback
+      });
+
+      // Start the frame-by-frame playback immediately when playVideoFrameByFrame is called
+      playFrame(videoPlayer.currentTime);
+    }
 
     videoPlayer.addEventListener('timeupdate', () => {
       const currentTime = videoPlayer.currentTime;
@@ -385,10 +481,8 @@ document.addEventListener('DOMContentLoaded', () => {
       // Update the time display
       const currentTimeInSeconds = Math.floor(currentTime);
       const durationInSeconds = Math.floor(duration);
-      timeDisplay.textContent = `${formatTime(currentTimeInSeconds)} / ${formatTime(durationInSeconds)}`;
-
-      // Redraw the annotations based on the current time
-      redrawAnnotations(currentTime);
+      timeDisplay.textContent = `${formatTime(
+          currentTimeInSeconds)} / ${formatTime(durationInSeconds)}`;
     });
 
     function formatTime(timeInSeconds) {
@@ -420,20 +514,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (event.target.classList.contains('delete-annotation-btn')) {
         const annotationId = event.target.dataset.annotationId;
         deleteAnnotation(annotationId);
-      }
-    });
-
-    document.addEventListener('click', (event) => {
-      if (event.target.classList.contains('jump-to-btn')) {
-        const annotationId = event.target.dataset.annotationId;
-
-        // Retrieve the annotation details using the ID and perform the jump-to operation
-        const annotation = getAnnotationById(annotationId);
-        if (annotation) {
-          const jumpToSecond = annotation.second;
-          videoPlayer.currentTime = jumpToSecond;
-          videoPlayer.play();
-        }
       }
     });
 
@@ -501,7 +581,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const speedOptions = document.getElementById('speed-options');
 
     speedBtn.addEventListener('click', () => {
-      speedOptions.style.display = speedOptions.style.display === 'block' ? 'none' : 'block';
+      speedOptions.style.display = speedOptions.style.display === 'block'
+          ? 'none' : 'block';
     });
 
     const speedOptionsButtons = document.querySelectorAll('.speed-option');
@@ -509,10 +590,9 @@ document.addEventListener('DOMContentLoaded', () => {
     speedOptionsButtons.forEach(button => {
       button.addEventListener('click', () => {
         const speed = button.dataset.speed;
-        videoPlayer.playbackRate = parseFloat(speed);
+        frameDuration = 1000 / (fps * parseFloat(speed));
         speedOptionsButtons.forEach(btn => btn.classList.remove('selected')); // Remove 'selected' class from all buttons
         button.classList.add('selected'); // Add 'selected' class to the clicked button
-        // speedOptions.style.display = 'none';
       });
     });
   } else {
@@ -522,9 +602,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Function to redraw the annotations based on the current time
   function redrawAnnotations(currentTime) {
-    // // Clear the canvas before redrawing the annotations
-    // clearCanvas();
-
     drawAnnotation(annotations, currentTime);
   }
 
@@ -639,12 +716,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
           try {
             // Send a DELETE request to the server to delete the video
-            const response = await fetch(`http://localhost:3001/video/${videoId}`, {
-              method: 'DELETE',
-              headers: {
-                'Authorization': `Bearer ${loggedInUser.token}`,
-              },
-            });
+            const response = await fetch(
+                `http://localhost:3001/video/${videoId}`, {
+                  method: 'DELETE',
+                  headers: {
+                    'Authorization': `Bearer ${loggedInUser.token}`,
+                  },
+                });
 
             if (response.ok) {
               // Video deleted successfully
@@ -692,36 +770,18 @@ document.addEventListener('DOMContentLoaded', () => {
       placeholderMessage.style.display = 'none';
 
       // Play the video
-      videoPlayer.play();
-
-      // // Draw the annotations on the canvas
-      // annotations.forEach(annotation => {
-      //   drawAnnotation(annotation);
-      // });
+      videoPlayer.currentTime = 0;
+      isPaused = false;
+      playVideoFrameByFrame(videoPlayer.currentTime);
     })
     .catch(error => {
       console.error('Error fetching video:', error);
     });
   }
 
-  // // Function to generate an annotation item HTML
-  // function createAnnotationItem(annotation) {
-  //   const {second, description, dropdownValue, _id} = annotation;
-  //   const item = document.createElement('li');
-  //   item.classList.add('annotation-item');
-  //   item.setAttribute('data-annotation-id', _id);
-  //   item.innerHTML = `
-  //   <span>${second}s</span>
-  //   <span>${description}</span>
-  //   <span>${dropdownValue}</span>
-  //   <button data-annotation-id="${_id}" class="delete-annotation-btn">Delete</button>
-  // `;
-  //   return item;
-  // }
-
   // Function to generate an annotation row in the table
   function createAnnotationItem(annotation) {
-    const { second, description, dropdownValue, _id } = annotation;
+    const {second, description, dropdownValue, _id} = annotation;
     const row = document.createElement('tr');
     row.classList.add('annotation-row');
     row.setAttribute('data-annotation-id', _id);
@@ -766,12 +826,24 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(data => {
       annotations = data;
 
+      annotationsMap = annotations.map(annotation => {
+        const { frameNumber, second, rectangle } = annotation;
+        const { x, y, width, height } = rectangle;
+
+        // Return a new object with the desired properties
+        return { frameNumber, second, x, y, width, height };
+      });
+
       // Populate the annotation list
       populateAnnotationList(data);
     })
     .catch(error => {
       console.error('Failed to retrieve annotations:', error);
     });
+  }
+
+  function drawAnnotationByFrame(annotations, currentTime, currentFrame) {
+
   }
 
   // Function to draw an annotation rectangle on the canvas
@@ -826,7 +898,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Return an object with the annotation data
         return {
           id: annotationId,
-          second: parseInt(second),
+          second: parseFloat(second),
           description: description,
           category: category
         };
