@@ -115,19 +115,19 @@ header {
   overflow: hidden;
   position: relative;
   width: 100%;
-  height: auto;
+  height: 487px;
   border: 3px solid lightgrey;
 }
 
 #video-player {
   width: 100%;
-  height: auto;
+  height: 487px;
 }
 
 #annotation-canvas {
+  width: 100%;
+  height: 487px;
   position: absolute;
-  top: 0;
-  left: 0;
 }
 
 #annotation-controls {
@@ -242,7 +242,7 @@ header {
 }
 
 body, button {
-  font-family: "Proxima Nova", Arial, sans-serif;
+  font-family: "Tahoma", Arial, sans-serif;
   font-size: 14px;
   margin: 0px;
 }
@@ -318,17 +318,18 @@ body, button {
 }
 
 #upload-button {
-  padding: 5px;
-  background-color: #4CAF50; /* Set the button background color */
+  border: 0px;
+  padding: 7px;
+  background-color: #3B3B3B; /* Set the button background color */
   color: #fff; /* Set the button text color */
   font-size: 14px; /* Set the button font size */
-  font-weight: bold;
+  /*font-weight: bold;*/
   cursor: pointer;
   transition: background-color 0.3s ease; /* Add transition effect to the background color */
 }
 
 #upload-button:hover {
-  background-color: #D34876; /* Change the background color on hover */
+  background-color: #4CAF50; /* Change the background color on hover */
 }
 
 .annotation-button-container {
@@ -337,7 +338,7 @@ body, button {
 }
 
 .annotation-button-container i {
-  font-size: 18px; /* Adjust the font size as needed */
+  font-size: 16px; /* Adjust the font size as needed */
   cursor: pointer;
   color: #333; /* Adjust the color as needed */
   transition: color 0.3s ease;
@@ -450,7 +451,7 @@ body, button {
   background-color: #333;
   width: 100%;
   height: 100%;
-  color: #808080;
+  color: #3B3B3B;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -475,21 +476,21 @@ body, button {
 }
 
 .placeholder-play-button {
-  font-size: 48px;
-  color: #808080;
+  font-size: 40px;
+  /*color: #808080;*/
   margin-bottom: 10px;
 }
 
 #arrow-table-container {
   position: absolute;
   bottom: 0;
-  right: 0;
+  right: 10px;
   opacity: 0.5;
 }
 
 #arrow-table {
-  width: 100px;
-  height: 100px;
+  width: 85px;
+  height: 95px;
   table-layout: fixed;
   background-color: transparent;
 }
@@ -517,4 +518,66 @@ body, button {
 
 .arrow-cell i:hover {
   color: #4CAF50; /* Change the hover color as desired */
+}
+
+.speed-dropdown {
+  position: absolute;
+  top: 10px;
+  right: 9px;
+  z-index: 2;
+}
+
+.speed-button {
+  background-color: #3B3B3B;
+  border: none;
+  color: #fff;
+  padding: 7px 13px; /* Increase the padding to make the button larger */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  /*border-radius: 30px; !* Adjust the border radius to make the edges more curved *!*/
+  font-size: 14px; /* Increase the font size to make the text larger */
+  transition: background-color 0.3s ease; /* Add transition effect to the background color */
+}
+
+.speed-button:hover {
+  background-color: #4CAF50; /* Change the hover color as desired */
+}
+
+.speed-button i {
+  margin-right: 10px; /* Increase the margin to add more spacing between the icon and text */
+}
+
+.speed-options {
+  display: none;
+  position: absolute;
+  background-color: #3B3B3B;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  padding: 5px;
+  right: 0;
+  width: 180px; /* Adjust the width as needed */
+  z-index: 3;
+  /*border-radius: 10px; !* Add border radius to make the options container rounded *!*/
+  display: flex; /* Use flexbox to align options side by side */
+  justify-content: space-between; /* Spread the options evenly */
+}
+
+.speed-option {
+  cursor: pointer;
+  padding: 3px 10px; /* Increase padding to make the buttons larger */
+  text-align: center; /* Center the text within the buttons */
+  font-size: 12px;
+}
+
+.speed-option:not(:last-child) {
+  background: #D8D7D5;
+}
+
+.speed-option:hover {
+  background-color: #ddd;
+}
+
+.speed-option.selected {
+  background-color: #4CAF50; /* Highlight the selected option */
+  color: #fff; /* Change text color to white for the selected option */
 }

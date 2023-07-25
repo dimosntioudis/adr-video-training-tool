@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // For drawing
   const videoPlayer = document.getElementById('video-player');
+  const videoContainer = document.getElementById('video-player-section');
   const annotationCanvas = document.getElementById('annotation-canvas');
   const drawRectangleBtn = document.getElementById('draw-rectangle-btn');
   let isDrawing = false;
@@ -30,6 +31,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const zoomButtonPlus = document.getElementById('zoom-btn-plus');
   const zoomButtonMinus = document.getElementById('zoom-btn-minus');
+
+  // Get the arrow buttons
+  const upArrow = document.getElementById('up-arrow');
+  const downArrow = document.getElementById('down-arrow');
+  const leftArrow = document.getElementById('left-arrow');
+  const rightArrow = document.getElementById('right-arrow');
 
   // Set initial zoom level
   let zoomLevel = 1;
@@ -59,18 +66,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const seekBackwardBtn = document.getElementById('seek-backward-btn');
   const seekForwardBtn = document.getElementById('seek-forward-btn');
+  const refreshBtn = document.getElementById('refresh-btn');
 
   // Check if the user is logged in
   if (loggedInUser) {
-    seekBackwardBtn.addEventListener('click', () => {
-      // Perform seeking backward logic (e.g., adjust video playback time by -5 seconds)
-      videoPlayer.currentTime -= 5;
-      videoPlayer.play();
+    seekBackwardBtn.addEventListener('click', () => {const frameRate = 30; // Replace with the actual frame rate of your video
+      const currentTime = videoPlayer.currentTime;
+      const targetTime = currentTime - (1 / frameRate);
+      videoPlayer.currentTime = targetTime >= 0 ? targetTime : 0;
+      videoPlayer.pause();
     });
 
     seekForwardBtn.addEventListener('click', () => {
-      // Perform seeking forward logic (e.g., adjust video playback time by +5 seconds)
-      videoPlayer.currentTime += 5;
+      const frameRate = 30; // Replace with the actual frame rate of your video
+      const currentTime = videoPlayer.currentTime;
+      const targetTime = currentTime + (1 / frameRate);
+      const videoDuration = videoPlayer.duration;
+      videoPlayer.currentTime = targetTime <= videoDuration ? targetTime : videoDuration;
+      videoPlayer.pause();
+    });
+
+    refreshBtn.addEventListener('click', () => {
+      videoPlayer.currentTime = 0;
       videoPlayer.play();
     });
 
@@ -347,6 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
       videoPlayer.play();
     });
 
+
     pauseBtn.addEventListener('click', () => {
       videoPlayer.pause();
     });
@@ -462,6 +480,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update canvas size on window resize
     window.addEventListener('resize', updateCanvasSize);
+
+    leftArrow.addEventListener('click', () => {
+      videoContainer.scrollBy(-50, 0); // Scroll left by 50 pixels
+    });
+
+    rightArrow.addEventListener('click', () => {
+      videoContainer.scrollBy(50, 0); // Scroll right by 50 pixels
+    });
+
+    upArrow.addEventListener('click', () => {
+      videoContainer.scrollBy(0, -50); // Scroll up by 50 pixels
+    });
+
+    downArrow.addEventListener('click', () => {
+      videoContainer.scrollBy(0, 50); // Scroll down by 50 pixels
+    });
+
+    const speedBtn = document.getElementById('speed-btn');
+    const speedOptions = document.getElementById('speed-options');
+
+    speedBtn.addEventListener('click', () => {
+      speedOptions.style.display = speedOptions.style.display === 'block' ? 'none' : 'block';
+    });
+
+    const speedOptionsButtons = document.querySelectorAll('.speed-option');
+
+    speedOptionsButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const speed = button.dataset.speed;
+        videoPlayer.playbackRate = parseFloat(speed);
+        speedOptionsButtons.forEach(btn => btn.classList.remove('selected')); // Remove 'selected' class from all buttons
+        button.classList.add('selected'); // Add 'selected' class to the clicked button
+        // speedOptions.style.display = 'none';
+      });
+    });
   } else {
     // User is not logged in, redirect to the login page
     window.location.href = '/login.html';
