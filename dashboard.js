@@ -461,6 +461,17 @@ document.addEventListener('DOMContentLoaded', () => {
       drawRectangleBtn.addEventListener('click', handleDrawButtonClick);
 
       progressBarContainer.addEventListener('click', (event) => {
+        clearCanvas();
+        // Remove highlight from the previous annotation item
+        if (highlightedAnnotationItems.length > 0) {
+          // Clear highlight for previously highlighted items
+          highlightedAnnotationItems.forEach(item => {
+            item.classList.remove('highlight');
+            item.style.backgroundColor = '';
+            item.style.color = "#333";
+          });
+        }
+
         const clickX = event.offsetX;
         const progressBarWidth = progressBarContainer.offsetWidth;
         const seekTime = (clickX / progressBarWidth) * videoPlayer.duration;
@@ -530,9 +541,25 @@ document.addEventListener('DOMContentLoaded', () => {
         zoomLevel = 2.0;
       }
 
-      // Apply zoom to video player
+      const containerRect = videoContainer.getBoundingClientRect();
+      const containerTop = containerRect.top;
+      console.log(containerTop);
+
+      const videoRect = videoPlayer.getBoundingClientRect();
+      const videoTop = videoRect.top;
+      console.log(videoTop);
+
+      // Apply zoom to video player with the transform-origin set to the center
+      const videoCenterX = videoPlayer.clientWidth / 2;
+      const videoCenterY = videoPlayer.clientHeight / 2;
       videoPlayer.style.transform = `scale(${zoomLevel})`;
+      videoPlayer.style.transformOrigin = `${videoCenterX}px ${videoCenterY}px`;
+
+      // Apply zoom to annotation canvas with the transform-origin set to the center
+      const canvasCenterX = annotationCanvas.width / 2;
+      const canvasCenterY = annotationCanvas.height / 2;
       annotationCanvas.style.transform = `scale(${zoomLevel})`;
+      annotationCanvas.style.transformOrigin = `${canvasCenterX}px ${canvasCenterY}px`;
     }
 
     // Function to handle zoom
@@ -544,9 +571,17 @@ document.addEventListener('DOMContentLoaded', () => {
         zoomLevel = 1.0;
       }
 
-      // Apply zoom to video player
+      // Apply zoom to video player with the transform-origin set to the center
+      const videoCenterX = videoPlayer.clientWidth / 2;
+      const videoCenterY = videoPlayer.clientHeight / 2;
       videoPlayer.style.transform = `scale(${zoomLevel})`;
+      videoPlayer.style.transformOrigin = `${videoCenterX}px ${videoCenterY}px`;
+
+      // Apply zoom to annotation canvas with the transform-origin set to the center
+      const canvasCenterX = annotationCanvas.width / 2;
+      const canvasCenterY = annotationCanvas.height / 2;
       annotationCanvas.style.transform = `scale(${zoomLevel})`;
+      annotationCanvas.style.transformOrigin = `${canvasCenterX}px ${canvasCenterY}px`;
     }
 
     function updateCanvasSize() {
@@ -561,22 +596,50 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update canvas size on window resize
     window.addEventListener('resize', updateCanvasSize);
 
-    leftArrow.addEventListener('click', () => {
-      videoContainer.scrollBy(-50, 0); // Scroll left by 50 pixels
-    });
+    let isMoving = false;
+    let startX = 0;
+    let startY = 0;
+    let startPanOffsetX = 0;
+    let startPanOffsetY = 0;
+    let panOffsetX = 0;
+    let panOffsetY = 0;
 
-    rightArrow.addEventListener('click', () => {
-      videoContainer.scrollBy(50, 0); // Scroll right by 50 pixels
-    });
+    // Function to handle mousedown event to start dragging
+    function handleMouseDown(event) {
+      if (!isDrawing && zoomLevel > 1) {
+        isMoving = true;
+        startX = event.clientX;
+        startY = event.clientY;
+        startPanOffsetX = panOffsetX;
+        startPanOffsetY = panOffsetY;
+      }
+    }
 
-    upArrow.addEventListener('click', () => {
-      videoContainer.scrollBy(0, -50); // Scroll up by 50 pixels
-    });
+    // Function to handle mousemove event during dragging
+    function handleMouseMove(event) {
+      if (isMoving) {
+        const deltaX = event.clientX - startX;
+        const deltaY = event.clientY - startY;
 
-    downArrow.addEventListener('click', () => {
-      videoContainer.scrollBy(0, 50); // Scroll down by 50 pixels
-    });
+        // Calculate the new pan offsets based on the drag distance
+        panOffsetX = startPanOffsetX + deltaX;
+        panOffsetY = startPanOffsetY + deltaY;
 
+        // Apply the new pan offsets to the video player's transform style
+        videoPlayer.style.transform = `scale(${zoomLevel}) translate(${panOffsetX}px, ${panOffsetY}px)`;
+        annotationCanvas.style.transform = `scale(${zoomLevel}) translate(${panOffsetX}px, ${panOffsetY}px)`;
+      }
+    }
+
+    // Add event listeners for click-and-drag panning
+    annotationCanvas.addEventListener('mousedown', handleMouseDown);
+    annotationCanvas.addEventListener('mousemove', handleMouseMove);
+    annotationCanvas.addEventListener('mouseup', handleMouseUp);
+
+    // Function to handle mouseup event to stop dragging
+    function handleMouseUp() {
+      isMoving = false;
+    }
     const speedBtn = document.getElementById('speed-btn');
     const speedOptions = document.getElementById('speed-options');
 
