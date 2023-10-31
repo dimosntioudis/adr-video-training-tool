@@ -1,39 +1,31 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="register.css">
-  <title>User Registration</title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="ie=edge" http-equiv="X-UA-Compatible">
+  <title>Login & Registration Form</title>
+  <!---Custom CSS File--->
+  <link href="register.css" rel="stylesheet">
 </head>
 <body>
-<div class="register-container">
-  <h1>User Registration</h1>
-
-  <form id="registrationForm">
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" placeholder="Username" required autocomplete>
-
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" placeholder="Password" required autocomplete>
-
-    <button type="submit">Register</button>
-  </form>
-
-  <button type="submit" id="loginButton">Login</button>
-
-  <script>
-    // JavaScript to handle the login button click event and redirect
-    document.getElementById("loginButton").addEventListener("click", function () {
-      // Redirect to the login page (replace 'login.html' with the actual URL)
-      window.location.href = "login.html";
-    });
-  </script>
+<div class="container">
+  <input id="check" type="checkbox">
+  <div class="registration form">
+    <header>Signup</header>
+    <form id="registrationForm">
+      <input id="username" placeholder="Enter your username" type="text">
+      <input id="email" placeholder="Enter your email" type="text">
+      <input id="password" placeholder="Create a password" type="password">
+      <input class="button" type="submit" value="Signup">
+    </form>
+    <div class="signup">
+      <span class="signup">Already have an account?
+        <a href="login.html">Login</a>
+      </span>
+    </div>
+  </div>
 </div>
-
-<!-- Include the login.js script -->
 <script src="register.js"></script>
 </body>
 </html>
-

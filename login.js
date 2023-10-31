@@ -1,31 +1,39 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const loginForm = document.getElementById('loginForm');
+document.getElementById("loginForm").addEventListener("submit", function (event) {
+  event.preventDefault(); // Prevent the default form submission
 
-  loginForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
+  // Gather user input data
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
 
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+  // Define the API endpoint URL
+  const apiUrl = "http://localhost:8080/api/auth/signin"; // Replace with your API endpoint URL
 
-    const response = await fetch('http://localhost:3000/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ username, password })
-    });
+  // Prepare the request data
+  const requestData = {
+    username: username,
+    password: password
+  };
 
+  console.log(requestData);
+
+  // Send a POST request to the API
+  fetch(apiUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(requestData),
+  })
+  .then((response) => {
     if (response.ok) {
-      // Login successful
-      const userData = await response.json();
-      localStorage.setItem('loggedInUser', JSON.stringify(userData));
-      window.location.href = '/video-player/dashboard.html'; // Redirect to dashboard page
+      alert("Login successful!");
+      // Redirect to the login page or any other appropriate page
+      window.location.href = "dashboard.html";
     } else {
-      // Login failed
-      const errorData = await response.json();
-      console.error('Login failed:', errorData.error);
-      // Display an error message to the user
-      // Example: document.getElementById('error-message').textContent = errorData.error;
+      alert("Login failed. Please try again.");
     }
+  })
+  .catch((error) => {
+    console.error("Error:", error);
   });
 });
