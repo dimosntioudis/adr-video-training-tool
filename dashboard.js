@@ -6,10 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const uploadPopup = document.getElementById('upload-popup');
   const logoutLink = document.getElementById('logout-link');
   const closeButton = document.getElementById('close-button');
-
   const uploadLink = document.getElementById('upload-link');
-  const placeholderPlayButton = document.getElementById(
-      'placeholder-play-button');
+  const placeholderPlayButton = document.getElementById('placeholder-play-button');
   const placeholderMessage = document.getElementById('placeholder-message');
 
   // For drawing
@@ -23,8 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Video control
   const playBtn = document.getElementById('play-btn');
   const pauseBtn = document.getElementById('pause-btn');
-  const progressBarContainer = document.getElementById(
-      'progress-bar-container');
+  const progressBarContainer = document.getElementById('progress-bar-container');
   const progressBar = document.getElementById('progress-bar');
   const timeDisplay = document.getElementById('time-display');
   let videoId;
@@ -62,11 +59,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // For annotation
   const annotationPopup = document.getElementById('annotation-popup');
-  const annotationDescription = document.getElementById(
-      'annotation-description');
+  const annotationDescription = document.getElementById('annotation-description');
   const annotationDropdown = document.getElementById('annotation-dropdown');
   const saveAnnotationBtn = document.getElementById('save-annotation-btn');
   const errorMessage = document.getElementById('error-message');
+
   // Retrieve the close button element
   const closePopupBtn = document.getElementById('close-popup-btn');
 
@@ -115,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function drawRectangle(x1, y1, width, height) {
       const ctx = annotationCanvas.getContext('2d');
       ctx.strokeStyle = 'red';
-      ctx.lineWidth = 1;
+      ctx.lineWidth = 3;
       ctx.beginPath();
       ctx.rect(x1 / zoomLevel, y1 / zoomLevel, width / zoomLevel,
           height / zoomLevel);
@@ -171,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Send a POST request to save the annotation
         const id = videoId; // Replace 'videoId' with the actual video ID
-        fetch(`http://localhost:3001/videos/${id}/annotations`, {
+        fetch(`http://localhost:3000/videos/${id}/annotations`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${loggedInUser.token}`,
@@ -218,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // PERSONAL INFO SECTION
     // Make a request to the server to fetch the user information
-    fetch('http://localhost:3001/dashboard', {
+    fetch('http://localhost:3000/dashboard', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${loggedInUser.token}`,
@@ -237,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // Update the "Welcome to the Dashboard" message with the username
       const welcomeMessageElement = document.getElementById('welcome-message');
       welcomeMessageElement.innerHTML = `
-        <h3>Welcome to the Dashboard ${user.username}!</h3>
+        <h3>Welcome to the Dashboard ${user.username}.</h3>
       `;
     })
     .catch(error => {
@@ -273,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
       formData.append('title', videoTitle);
       formData.append('description', videoDescription);
 
-      const response = await fetch('http://localhost:3001/upload', {
+      const response = await fetch('http://localhost:3000/upload', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${loggedInUser.token}`
@@ -374,6 +371,17 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       seekBackwardBtn.addEventListener('click', () => {
+        clearCanvas();
+        // Remove highlight from the previous annotation item
+        if (highlightedAnnotationItems.length > 0) {
+          // Clear highlight for previously highlighted items
+          highlightedAnnotationItems.forEach(item => {
+            item.classList.remove('highlight');
+            item.style.backgroundColor = '';
+            item.style.color = "#333";
+          });
+        }
+
         const frameRate = fps; // Replace with the actual frame rate of your video
         const currentTime = videoPlayer.currentTime;
         const targetTime = currentTime - (10 / frameRate);
@@ -382,6 +390,17 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       seekForwardBtn.addEventListener('click', () => {
+        clearCanvas();
+        // Remove highlight from the previous annotation item
+        if (highlightedAnnotationItems.length > 0) {
+          // Clear highlight for previously highlighted items
+          highlightedAnnotationItems.forEach(item => {
+            item.classList.remove('highlight');
+            item.style.backgroundColor = '';
+            item.style.color = "#333";
+          });
+        }
+
         const frameRate = fps; // Replace with the actual frame rate of your video
         const currentTime = videoPlayer.currentTime;
         const targetTime = currentTime + (10 / frameRate);
@@ -424,25 +443,40 @@ document.addEventListener('DOMContentLoaded', () => {
           currentFrameNumber = Math.floor(currentTime * fps);
 
           // Find if any rectangle exists for the currentFrameNumber
-          const targetRectangleData = annotations.find(item => item.frameNumber === currentFrameNumber);
-          if (targetRectangleData) {
-            const { x, y, width, height } = targetRectangleData.rectangle;
+          // Initialize an object to store annotations by frame number
+          const annotationsByFrame = {};
+
+          // Loop through your annotations and organize them by frame number
+          annotations.forEach(annotation => {
+            const frameNumber = annotation.frameNumber;
+            if (!annotationsByFrame[frameNumber]) {
+              annotationsByFrame[frameNumber] = [];
+            }
+            annotationsByFrame[frameNumber].push(annotation);
+          });
+
+          // Later in your code, when you want to retrieve annotations for the current frame:
+          const targetRectangleData = annotationsByFrame[currentFrameNumber];
+
+          if (targetRectangleData && targetRectangleData.length > 0) {
             isPaused = true;
             videoPlayer.pause();
-            drawRectangle(x, y, width, height);
 
-            // Find the corresponding annotation item
-            const annotationId = targetRectangleData._id; // Replace '_id' with the actual identifier of the annotation
-            const annotationItem = document.querySelector(`tr[data-annotation-id="${annotationId}"]`);
+            // You can also highlight all the corresponding annotation items
+            targetRectangleData.forEach(annotationData => {
+              const {x, y, width, height} = annotationData.rectangle;
+              drawRectangle(x, y, width, height);
 
-            // Apply a CSS class or inline styling to highlight the annotation item
-            annotationItem.classList.add('highlight'); // Add a CSS class
-            // OR
-            annotationItem.style.backgroundColor = '#4CAF50'; // Apply inline styling
-            annotationItem.style.color = 'white';
-
-            // Set the currently highlighted item to the new annotation item
-            highlightedAnnotationItems.push(annotationItem);
+              const annotationId = annotationData._id; // Replace '_id' with the actual identifier of the annotation
+              const annotationItem = document.querySelector(`tr[data-annotation-id="${annotationId}"]`);
+              if (annotationItem) {
+                annotationItem.classList.add('highlight'); // Add a CSS class
+                // OR
+                annotationItem.style.backgroundColor = '#4CAF50'; // Apply inline styling
+                annotationItem.style.color = 'white';
+                highlightedAnnotationItems.push(annotationItem);
+              }
+            });
 
             cancelAnimationFrame(animationFrameId); // Stop the frame-by-frame playback
           } else {
@@ -640,6 +674,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleMouseUp() {
       isMoving = false;
     }
+
     const speedBtn = document.getElementById('speed-btn');
     const speedOptions = document.getElementById('speed-options');
 
@@ -660,7 +695,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   } else {
     // User is not logged in, redirect to the login page
-    window.location.href = '/login.html';
+    window.location.href = '/video-player/login.html';
   }
 
   // Function to redraw the annotations based on the current time
@@ -678,7 +713,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const debounceSearch = _.debounce((searchQuery) => {
     if (searchQuery.trim() !== '') {
       // Make a request to the server to fetch search suggestions based on the search query
-      fetch(`http://localhost:3001/search?title=${searchQuery}`, {
+      fetch(`http://localhost:3000/search?title=${searchQuery}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${loggedInUser.token}`,
@@ -730,7 +765,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Function to fetch and display the video list
   async function fetchVideoList() {
     // Make a request to the server to fetch the user's videos
-    fetch('http://localhost:3001/videos', {
+    fetch('http://localhost:3000/videos', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${loggedInUser.token}`,
@@ -780,7 +815,7 @@ document.addEventListener('DOMContentLoaded', () => {
           try {
             // Send a DELETE request to the server to delete the video
             const response = await fetch(
-                `http://localhost:3001/video/${videoId}`, {
+                `http://localhost:3000/video/${videoId}`, {
                   method: 'DELETE',
                   headers: {
                     'Authorization': `Bearer ${loggedInUser.token}`,
@@ -811,7 +846,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Function to play the video
   function playVideo(videoId) {
     // Retrieve the video based on the videoId
-    fetch(`http://localhost:3001/videos/${videoId}`, {
+    fetch(`http://localhost:3000/videos/${videoId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${loggedInUser.token}`,
@@ -824,10 +859,25 @@ document.addEventListener('DOMContentLoaded', () => {
       const videoPath = video.path;
 
       // Construct the URL to the video file
-      const videoURL = `http://localhost:3001/${videoPath}`;
+      const videoURL = `http://localhost:3000/${videoPath}`;
 
       // Set the src attribute of the video player to the videoURL
       videoPlayer.src = videoURL;
+
+      // Wait for metadata to load
+      videoPlayer.addEventListener('loadedmetadata', function () {
+        // Get the original video width and height
+        const originalWidth = videoPlayer.videoWidth;
+        const originalHeight = videoPlayer.videoHeight;
+
+        // Set the player's dimensions to match the original video
+        videoPlayer.style.width = originalWidth + 'px';
+        videoPlayer.style.height = originalHeight + 'px';
+
+        // Set the canvas dimensions to match the video player dimensions
+        annotationCanvas.style.width = originalWidth + 'px';
+        annotationCanvas.style.height = originalHeight + 'px';
+      });
 
       placeholderPlayButton.style.display = 'none';
       placeholderMessage.style.display = 'none';
@@ -844,12 +894,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Function to generate an annotation row in the table
   function createAnnotationItem(annotation) {
-    const {second, description, dropdownValue, _id} = annotation;
+    const {second, frameNumber, description, dropdownValue, _id} = annotation;
     const row = document.createElement('tr');
     row.classList.add('annotation-row');
     row.setAttribute('data-annotation-id', _id);
     row.innerHTML = `
     <td>${second}s</td>
+    <td>${frameNumber}</td>
     <td>${description}</td>
     <td>${dropdownValue}</td>
     <td>
@@ -879,7 +930,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Function to retrieve and populate the annotation list
   function retrieveAndPopulateAnnotations() {
-    fetch(`http://localhost:3001/videos/${videoId}/annotations`, {
+    fetch(`http://localhost:3000/videos/${videoId}/annotations`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${loggedInUser.token}`
@@ -888,13 +939,14 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(response => response.json())
     .then(data => {
       annotations = data;
+      console.log(annotations)
 
       annotationsMap = annotations.map(annotation => {
-        const { frameNumber, second, rectangle } = annotation;
-        const { x, y, width, height } = rectangle;
+        const {frameNumber, second, rectangle} = annotation;
+        const {x, y, width, height} = rectangle;
 
         // Return a new object with the desired properties
-        return { frameNumber, second, x, y, width, height };
+        return {frameNumber, second, x, y, width, height};
       });
 
       // Populate the annotation list
@@ -903,10 +955,6 @@ document.addEventListener('DOMContentLoaded', () => {
     .catch(error => {
       console.error('Failed to retrieve annotations:', error);
     });
-  }
-
-  function drawAnnotationByFrame(annotations, currentTime, currentFrame) {
-
   }
 
   // Function to draw an annotation rectangle on the canvas
@@ -974,7 +1022,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Function to delete an annotation
   function deleteAnnotation(annotationId) {
-    fetch(`http://localhost:3001/videos/${videoId}/annotations/${annotationId}`,
+    fetch(`http://localhost:3000/videos/${videoId}/annotations/${annotationId}`,
         {
           method: 'DELETE',
           headers: {

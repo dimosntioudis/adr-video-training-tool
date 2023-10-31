@@ -11,30 +11,19 @@
 }
 
 .right-section {
-  width: 30%;
+  width: 40%;
   background-color: #f1f1f1;
   padding: 10px;
   /* Add any additional styling for the left section */
 }
 
 .middle-section {
-  width: 70%;
+  width: 60%;
   flex-grow: 1;
   background-color: #f1f1f1;
   padding: 10px;
   /* Add any additional styling for the right section */
 }
-
-/*#upload-popup {*/
-/*  display: none;*/
-/*  position: fixed;*/
-/*  top: 50%;*/
-/*  left: 50%;*/
-/*  transform: translate(-50%, -50%);*/
-/*  background-color: #fff;*/
-/*  padding: 20px;*/
-/*  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);*/
-/*}*/
 
 /* Add custom styles for the header */
 header {
@@ -56,6 +45,7 @@ header {
 }
 
 .login-logout a {
+  font-size: 18px;
   margin-right: 10px;
   text-decoration: none;
   color: #f1f1f1;
@@ -63,20 +53,10 @@ header {
 }
 
 .logo img {
-  width: 150px; /* Adjust the width as needed */
+  margin-top: 10px;
+  width: 200px; /* Adjust the width as needed */
   height: auto; /* Adjust the height as needed */
 }
-
-/*#upload-popup {*/
-/*  position: fixed;*/
-/*  top: 50%;*/
-/*  left: 50%;*/
-/*  transform: translate(-50%, -50%);*/
-/*  background-color: #fff;*/
-/*  padding: 20px;*/
-/*  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);*/
-/*  z-index: 2;*/
-/*}*/
 
 .close-button-container {
   display: flex;
@@ -96,6 +76,7 @@ header {
 }
 
 #upload-form {
+  z-index: 4;
   display: flex;
   flex-direction: column;
 }
@@ -192,6 +173,9 @@ header {
 #search-bar {
   width: 100%; /* Set the input width to fill the container */
   box-sizing: border-box; /* Include padding and border in the total width */
+  height: 28px;
+  font-style: italic;
+  font-size: 16px;
 }
 
 #time-display {
@@ -242,8 +226,8 @@ header {
 }
 
 body, button {
-  font-family: "Tahoma", Arial, sans-serif;
-  font-size: 14px;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 18px;
   margin: 0px;
 }
 
@@ -305,6 +289,7 @@ body, button {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 60px;
   margin-bottom: 0px; /* Adjust the bottom margin as needed */
 }
 
@@ -322,7 +307,7 @@ body, button {
   padding: 7px;
   background-color: #3B3B3B; /* Set the button background color */
   color: #fff; /* Set the button text color */
-  font-size: 14px; /* Set the button font size */
+  font-size: 18px; /* Set the button font size */
   /*font-weight: bold;*/
   cursor: pointer;
   transition: background-color 0.3s ease; /* Add transition effect to the background color */
@@ -338,7 +323,7 @@ body, button {
 }
 
 .annotation-button-container i {
-  font-size: 16px; /* Adjust the font size as needed */
+  font-size: 18px; /* Adjust the font size as needed */
   cursor: pointer;
   color: #333; /* Adjust the color as needed */
   transition: color 0.3s ease;
@@ -390,6 +375,7 @@ body, button {
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  z-index: 4;
 }
 
 .popup h3 {
@@ -399,6 +385,7 @@ body, button {
 .popup input[type="text"],
 .popup textarea,
 .popup select {
+  font-family: 'Source Sans Pro', sans-serif;
   width: 100%;
   padding: 8px;
   margin-bottom: 10px;
@@ -439,11 +426,16 @@ body, button {
 }
 
 #annotation-popup textarea {
+  width: 280px;
   height: 80px;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 16px;
 }
 
 #annotation-popup select {
   width: 100%;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 16px;
 }
 
 .video-placeholder {
@@ -467,7 +459,7 @@ body, button {
 }
 
 .video-placeholder-overlay p {
-  font-size: 16px;
+  font-size: 18px;
 }
 
 .video-placeholder-overlay a {
@@ -476,7 +468,7 @@ body, button {
 }
 
 .placeholder-play-button {
-  font-size: 40px;
+  font-size: 100px;
   /*color: #808080;*/
   margin-bottom: 10px;
 }
@@ -536,7 +528,7 @@ body, button {
   display: flex;
   align-items: center;
   /*border-radius: 30px; !* Adjust the border radius to make the edges more curved *!*/
-  font-size: 14px; /* Increase the font size to make the text larger */
+  font-size: 18px; /* Increase the font size to make the text larger */
   transition: background-color 0.3s ease; /* Add transition effect to the background color */
 }
 
@@ -566,7 +558,7 @@ body, button {
   cursor: pointer;
   padding: 3px 10px; /* Increase padding to make the buttons larger */
   text-align: center; /* Center the text within the buttons */
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .speed-option:not(:last-child) {

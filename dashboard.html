@@ -2,32 +2,35 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="dashboard.css">
-  <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
-  <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet'
+        type='text/css'>
+  <link href="dashboard.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+        rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+        rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Proxima+Nova&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
-  <title>Dashboard</title>
+  <title>ONCO-AICO Dashboard</title>
 </head>
 <body>
 
 <div class="dashboard-page">
-  <!-- Add the header element -->
+
+  <!-- Header element -->
   <header>
     <div class="logo">
-      <img src="images/1-ONCOSCREEN Logo.png" alt="Logo">
+      <img alt="Logo" src="images/1-ONCOSCREEN Logo.png">
     </div>
-    <div id="login-logout" class="login-logout">
-      <a id="logout-link" href="#">Logout</a>
+    <div class="login-logout" id="login-logout">
+      <a href="#" id="logout-link">LOGOUT</a>
     </div>
   </header>
 
+  <!-- Sub-header element -->
   <header class="sub-header">
     <div class="sub-header-content">
-      <h3 id="welcome-message">Welcome to the Dashboard <span id="username"></span>!</h3>
     </div>
     <div id="content-wrapper">
       <div id="upload-section">
@@ -36,41 +39,51 @@
     </div>
   </header>
 
+  <!-- Main dashboard area -->
   <div class="dashboard-container">
-    <!--    <div class="left-section">-->
-    <!--    </div>-->
+
     <div class="middle-section">
+
       <div>
         <h3>Video Player</h3>
       </div>
-      <!-- Video Player Section -->
-      <div id="video-player-section" class="video-placeholder">
+
+      <div class="video-placeholder" id="video-player-section">
+
         <video id="video-player">
           <!-- Video source will be dynamically inserted here -->
         </video>
 
         <div class="speed-dropdown">
-          <button id="speed-btn" class="speed-button">
+
+          <button class="speed-button" id="speed-btn">
             <i class="fas fa-tachometer-alt"></i> Speed
           </button>
+
           <div class="speed-options" id="speed-options" style="display: none;">
-            <button class="speed-option" data-speed="2.0">SLOW</button>
+            <button class="speed-option" data-speed="4.0">SLOW</button>
             <button class="speed-option selected" data-speed="1.0">NORMAL</button>
             <button class="speed-option" data-speed="0.5">FAST</button>
           </div>
+
         </div>
 
         <canvas id="annotation-canvas"></canvas>
 
         <div class="video-placeholder-overlay">
-          <div id="placeholder-play-button" class="placeholder-play-button">
+
+          <div class="placeholder-play-button" id="placeholder-play-button">
             <i class="fas fa-play-circle"></i>
           </div>
-          <p id="placeholder-message" class="placeholder-message">Click on a video to play or <a
-              id="upload-link" href="#">upload a new one</a>.</p>
+
+          <p class="placeholder-message" id="placeholder-message">Click on a video to play or <a
+              href="#" id="upload-link">upload a new one</a>.
+          </p>
+
         </div>
 
         <div id="arrow-table-container">
+
           <table id="arrow-table">
             <tr>
               <td></td>
@@ -88,55 +101,99 @@
               <td></td>
             </tr>
           </table>
+
         </div>
+
       </div>
 
-      <div id="annotation-popup" class="popup hidden">
+      <div class="popup hidden" id="annotation-popup">
+
         <div class="close-button-container">
           <button id="close-popup-btn">X</button>
         </div>
+
         <h3>Draw Rectangle</h3>
+
         <textarea id="annotation-description" placeholder="Add a description..."></textarea>
+
         <select id="annotation-dropdown">
           <option value="Option 1">Option 1</option>
           <option value="Option 2">Option 2</option>
           <option value="Option 3">Option 3</option>
         </select>
+
         <button id="save-annotation-btn">Save</button>
-        <p id="error-message" class="hidden">Description is required.</p>
+
+        <p class="hidden" id="error-message">Description is required.</p>
+
       </div>
+
     </div>
+
     <div class="right-section">
+
+      <!-- Search Bar Section -->
+      <div id="video-search-bar">
+
+        <h3>Video Search</h3>
+
+        <div class="search-input-container">
+          <input id="search-bar" placeholder="Search videos" type="text">
+        </div>
+
+        <div id="suggestions-container"></div>
+
+      </div>
+
+      <!-- Video Review Section -->
+      <div id="video-review-section">
+
+        <h3>Video List</h3>
+
+        <div id="video-list">
+          <!-- Video list will be dynamically inserted here -->
+        </div>
+
+      </div>
+
+      <!-- Video Controls Section -->
       <div id="annotation-controls">
         <h3>Video Controls</h3>
-        <!--        <button id="draw-rectangle-btn">Draw Rectangle</button>-->
       </div>
+
       <div id="custom-controls">
+
         <div id="progress-bar-container">
           <div id="progress-bar"></div>
           <div id="time-display">00:00:00 / 00:00:00</div>
         </div>
+
         <div class="video-buttons">
-          <button id="seek-backward-btn" class="video-button"><i class="fas fa-backward"></i>
+          <button class="video-button" id="seek-backward-btn"><i class="fas fa-backward"></i>
           </button>
-          <button id="play-btn" class="video-button"><i class="fas fa-play"></i></button>
-          <button id="pause-btn" class="video-button"><i class="fas fa-pause"></i></button>
-          <button id="seek-forward-btn" class="video-button"><i class="fas fa-forward"></i></button>
-          <button id="refresh-btn" class="video-button"><i class="fas fa-refresh"></i></button>
-          <button id="zoom-btn-plus" class="video-button"><i class="fas fa-search-plus"></i>
+          <button class="video-button" id="play-btn"><i class="fas fa-play"></i></button>
+          <button class="video-button" id="pause-btn"><i class="fas fa-pause"></i></button>
+          <button class="video-button" id="seek-forward-btn"><i class="fas fa-forward"></i></button>
+          <button class="video-button" id="refresh-btn"><i class="fas fa-refresh"></i></button>
+          <button class="video-button" id="zoom-btn-plus"><i class="fas fa-search-plus"></i>
           </button>
-          <button id="zoom-btn-minus" class="video-button"><i class="fas fa-search-minus"></i>
+          <button class="video-button" id="zoom-btn-minus"><i class="fas fa-search-minus"></i>
           </button>
-          <button id="draw-rectangle-btn" class="video-button" title="Add Rectangle"><i
+          <button class="video-button" id="draw-rectangle-btn" title="Add Rectangle"><i
               class="fas fa-plus-square"></i></button>
         </div>
+
       </div>
+
       <div id="annotation-section">
+
         <h3>Video Annotations</h3>
-        <table id="annotation-table" class="cool-table">
+
+        <table class="cool-table" id="annotation-table">
           <thead>
           <tr>
             <th>Second</th>
+            <th>Frame</th>
             <th>Description</th>
             <th>Category</th>
             <th>Action</th>
@@ -146,47 +203,37 @@
           <!-- Annotation rows will be dynamically inserted here -->
           </tbody>
         </table>
-      </div>
 
-      <!-- Video Review Section -->
-      <div id="video-review-section">
-        <h3>Video List</h3>
-        <div id="video-list">
-          <!-- Video list will be dynamically inserted here -->
-        </div>
-      </div>
-
-      <!-- Search Bar -->
-      <div id="video-search-bar">
-        <h3>Video Search</h3>
-        <div class="search-input-container">
-          <input type="text" id="search-bar" placeholder="Search videos">
-        </div>
-        <div id="suggestions-container"></div>
       </div>
 
     </div>
+
   </div>
 
   <!-- Upload Popup Form -->
-  <div id="upload-popup" class="popup hidden">
+  <div class="popup hidden" id="upload-popup">
+
     <div class="close-button-container">
       <button id="close-button">X</button>
     </div>
+
     <h3>Upload Video</h3>
+
     <form id="upload-form">
       <label for="video-title">Title:</label>
-      <input type="text" id="video-title" required>
+      <input id="video-title" required type="text">
 
       <label for="video-description">Description:</label>
       <textarea id="video-description" required></textarea>
 
       <label for="video-file">Video:</label>
-      <input type="file" id="video-file" accept="video/*" required>
+      <input accept="video/*" id="video-file" required type="file">
 
       <button type="submit">Upload</button>
     </form>
+
   </div>
+
 </div>
 
 <script src="dashboard.js"></script>

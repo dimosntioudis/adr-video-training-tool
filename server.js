@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const fs = require('fs');
 const app = express();
-const port = 3001;
+const port = 3000;
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
@@ -23,9 +23,32 @@ app.use(express.urlencoded({ extended: true }));
 
 // Database connection setup
 // Replace <db-url> with your MongoDB connection URL
-mongoose.connect('mongodb://localhost:27017/mydatabase', {
+mongoose.connect('mongodb://127.0.0.1:27017/aico', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+});
+
+// Listen for the "connected" event
+mongoose.connection.on('connected', () => {
+  console.log('Connected to MongoDB');
+});
+
+// Listen for the "error" event
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB connection error:', err);
+});
+
+// Listen for the "disconnected" event
+mongoose.connection.on('disconnected', () => {
+  console.log('Disconnected from MongoDB');
+});
+
+// Gracefully close the MongoDB connection when the Node.js application is terminated
+process.on('SIGINT', () => {
+  mongoose.connection.close(() => {
+    console.log('MongoDB connection closed');
+    process.exit(0);
+  });
 });
 
 // Set up schemas
@@ -362,7 +385,7 @@ function authenticateToken(req, res, next) {
       return res.status(403).json({ error: 'Invalid token' });
     }
 
-    console.log('Token verified successfully');
+    // console.log('Token verified successfully');
     req.user = user;
     next();
   });
