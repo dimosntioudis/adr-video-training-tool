@@ -14,8 +14,6 @@ document.getElementById("loginForm").addEventListener("submit", function (event)
     password: password
   };
 
-  console.log(requestData);
-
   // Send a POST request to the API
   fetch(apiUrl, {
     method: "POST",
@@ -23,6 +21,7 @@ document.getElementById("loginForm").addEventListener("submit", function (event)
       "Content-Type": "application/json",
     },
     body: JSON.stringify(requestData),
+    credentials: "include"
   })
   .then((response) => {
     if (response.ok) {
