@@ -14,7 +14,7 @@ document.getElementById("registrationForm").addEventListener("submit", function 
     username: username,
     email: email,
     password: password,
-    roles: ["trainer"], // You can set the role as needed
+    roles: ["trainee"], // You can set the role as needed
   };
 
   // Send a POST request to the API

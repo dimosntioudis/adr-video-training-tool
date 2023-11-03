@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Video Submissions</title>
+  <link href="../css/dashboard.css" rel="stylesheet">
+  <link href="../css/submission.css" rel="stylesheet"> <!-- Include your CSS file for styling -->
+  <link href="../css/header.css" rel="stylesheet">
+
+  <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet'
+        type='text/css'>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+        rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+        rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Proxima+Nova&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+</head>
+<body>
+
+<div class="dashboard-page">
+
+  <!-- Header element -->
+  <header>
+    <div class="logo">
+      <img alt="Logo" src="../images/1-ONCOSCREEN%20Logo.png">
+    </div>
+    <div class="login-logout" id="login-logout">
+      <a href="dashboard.html" id="dashboard-link">Dashboard</a>
+      <a class="active" href="submission.html" id="submission-link">Submissions</a>
+      <a href="#" id="logout-link">Logout</a>
+    </div>
+  </header>
+
+  <div class="dashboard-container">
+
+    <div class="middle-section">
+      <div>
+        <h3>Submissions</h3>
+      </div>
+
+      <table class="cool-table" id="submission-table">
+        <thead>
+        <tr>
+          <th>Video Title</th>
+          <th>Number of Annotations</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="submission-list">
+        <!-- Annotation rows will be dynamically inserted here -->
+        </tbody>
+      </table>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script src="../scripts/submission.js"></script> <!-- Include your JavaScript file for functionality -->
+</body>
+</html>

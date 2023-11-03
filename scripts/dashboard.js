@@ -26,9 +26,20 @@ document.addEventListener('DOMContentLoaded', () => {
         videoItem.innerHTML = `
           <p>${video.title}</p>
           <button class="play-button" data-video-id="${video.id}">Play</button>
+          <button class="submit-button" data-video-id="${video.id}">Submit</button>
         `;
         videoListElement.appendChild(videoItem);
       });
+
+      const submitButtons = document.querySelectorAll('.submit-button');
+      submitButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          videoId = button.dataset.videoId;
+
+          // Submit the annotation for the specific video
+          submitAnnotation(videoId);
+        });
+      })
 
       // Attach event listeners to the play buttons
       const playButtons = document.querySelectorAll('.play-button');
@@ -49,6 +60,35 @@ document.addEventListener('DOMContentLoaded', () => {
     .catch(error => {
       console.error('Failed to fetch user videos:', error);
     });
+  }
+
+  function submitAnnotation(videoId) {
+    const annotationData = {
+      videoId: videoId,
+    };
+
+    try {
+      fetch('http://localhost:8080/api/test/submissions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(annotationData),
+        credentials: "include",
+      })
+      .then((response) => {
+        if (response.ok) {
+          alert("Annotations submitted successfully!");
+        } else {
+          alert("Failed to submit annotations. Please try again.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+    } catch (error) {
+      console.error("Error:", error);
+    }
   }
 
   const annotationCanvas = document.getElementById('annotation-canvas');
@@ -76,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .then(video => {
       // Set the src attribute of the video player to the videoURL
-      videoPlayer.src = video.path;
+      videoPlayer.src = '../' + video.path;
 
       // Wait for metadata to load
       videoPlayer.addEventListener('loadedmetadata', function () {

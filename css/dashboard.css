@@ -25,39 +25,6 @@
   /* Add any additional styling for the right section */
 }
 
-/* Add custom styles for the header */
-header {
-  background-color: #333333;
-  padding: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.login-logout {
-  display: flex;
-  align-items: center;
-}
-
-.login-logout a {
-  font-size: 18px;
-  margin-right: 10px;
-  text-decoration: none;
-  color: #f1f1f1;
-  font-weight: bold;
-}
-
-.logo img {
-  margin-top: 10px;
-  width: 200px; /* Adjust the width as needed */
-  height: auto; /* Adjust the height as needed */
-}
-
 .close-button-container {
   display: flex;
   justify-content: flex-end;
@@ -101,12 +68,12 @@ header {
 }
 
 #video-player {
-  width: 100%;
+  width: 487px;
   height: 487px;
 }
 
 #annotation-canvas {
-  width: 100%;
+  width: 487px;
   height: 487px;
   position: absolute;
 }
@@ -226,7 +193,7 @@ header {
 }
 
 body, button {
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 18px;
   margin: 0px;
 }
@@ -385,7 +352,7 @@ body, button {
 .popup input[type="text"],
 .popup textarea,
 .popup select {
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Poppins', sans-serif;
   width: 100%;
   padding: 8px;
   margin-bottom: 10px;
@@ -428,13 +395,13 @@ body, button {
 #annotation-popup textarea {
   width: 280px;
   height: 80px;
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 16px;
 }
 
 #annotation-popup select {
   width: 100%;
-  font-family: 'Source Sans Pro', sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-size: 16px;
 }
 

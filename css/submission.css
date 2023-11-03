@@ -1,0 +1,33 @@
+body, button {
+  font-family: 'Poppins', sans-serif;
+  font-size: 18px;
+  margin: 0px;
+}
+
+.dashboard-container {
+  display: flex;
+  height: 100vh;
+}
+
+.submission-button-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.submission-button-container i {
+  font-size: 18px; /* Adjust the font size as needed */
+  cursor: pointer;
+  color: #333; /* Adjust the color as needed */
+  transition: color 0.3s ease;
+}
+
+.submission-button-container i:hover {
+  color: #4CAF50; /* Adjust the hover color as needed */
+}
+
+/* Media query for screen sizes where the buttons should be stacked */
+@media (max-width: 600px) {
+  .submission-button-container {
+    flex-direction: column;
+  }
+}
