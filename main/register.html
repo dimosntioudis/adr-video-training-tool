@@ -1,31 +1,71 @@
 <!DOCTYPE html>
+<!---Coding By CodingLab | www.codinglabweb.com--->
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <meta content="ie=edge" http-equiv="X-UA-Compatible">
-  <title>Login & Registration Form</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <!--<title>Registration Form in HTML CSS</title>-->
   <!---Custom CSS File--->
-  <link href="../css/register.css" rel="stylesheet">
+  <link rel="stylesheet" href="../css/register.css" />
 </head>
 <body>
-<div class="container">
-  <input id="check" type="checkbox">
-  <div class="registration form">
-    <header>Signup</header>
-    <form id="registrationForm">
-      <input id="username" placeholder="Enter your username" type="text">
-      <input id="email" placeholder="Enter your email" type="text">
-      <input id="password" placeholder="Create a password" type="password">
-      <input class="button" type="submit" value="Signup">
-    </form>
-    <div class="signup">
+<section class="container">
+  <header>Registration Form</header>
+  <form action="#" class="form" id="registrationForm">
+    <div class="input-box">
+      <input id="username" type="text" placeholder="Enter username" required />
+    </div>
+
+    <div class="input-box">
+      <input id="email" type="text" placeholder="Enter email address" required />
+    </div>
+
+    <div class="input-box">
+      <input id="password" type="text" placeholder="Enter password" required />
+    </div>
+
+    <div class="column">
+      <div class="input-box">
+        <input id="firstname" type="text" placeholder="Enter first name" required />
+      </div>
+      <div class="input-box">
+        <input id="lastname" type="text" placeholder="Enter last name" required />
+      </div>
+    </div>
+    <div class="role-box">
+      <div class="role-option">
+        <div class="role">
+          <input type="radio" id="check-trainer" name="role" checked />
+          <label for="check-trainer">Trainer</label>
+        </div>
+        <div class="role">
+          <input type="radio" id="check-trainee" name="role" />
+          <label for="check-trainee">Trainee</label>
+        </div>
+      </div>
+    </div>
+    <div class="input-box address">
+      <div class="column">
+        <div class="select-box">
+          <select id="countrySelection">
+            <option hidden>Country</option>
+            <option>Greece</option>
+            <option>Germany</option>
+            <option>Lithuania</option>
+            <option>Italy</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <button>Submit</button>
+  </form>
+  <div class="signup">
       <span class="signup">Already have an account?
         <a href="login.html">Login</a>
       </span>
-    </div>
   </div>
-</div>
+</section>
 <script src="../scripts/register.js"></script>
 </body>
 </html>

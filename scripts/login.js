@@ -27,10 +27,18 @@ document.getElementById("loginForm").addEventListener("submit", function (event)
     if (response.ok) {
       alert("Login successful!");
       // Redirect to the login page or any other appropriate page
-      window.location.href = "dashboard.html";
+      return response.json();
     } else {
       alert("Login failed. Please try again.");
     }
+  })
+  .then(data => {
+      const {roles} = data;
+      if(roles.includes("TRAINER")) {
+        window.location.href = "dashboard.html";
+      } else {
+        window.location.href = "dashboard.html";
+      }
   })
   .catch((error) => {
     console.error("Error:", error);
