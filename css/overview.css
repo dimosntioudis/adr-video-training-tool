@@ -1,0 +1,41 @@
+/* Style the select element */
+.status-select {
+  width: 60%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  font-size: 16px;
+  color: #333;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Style the options within the select element */
+.status-select option {
+  font-size: 16px;
+  background-color: #fff;
+}
+
+/* Style the select element when it's hovered over */
+.status-select:hover {
+  background-color: #e8e8e8;
+}
+
+/* Style the select element when it's focused */
+.status-select:focus {
+  outline: none;
+  border: 1px solid #D34876FF;
+}
+
+/* Style the select element when an option is selected */
+.status-select:active,
+.status-select:checked {
+  background-color: #007bff;
+  color: #fff;
+}
+
+/* Style the table row when the dropdown is focused */
+.status-select:focus + td {
+  background-color: #e8e8e8;
+}
