@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-
   // Function to retrieve and populate the annotation list
   function retrieveAndPopulateSubmissions() {
     fetch(`http://localhost:8080/api/test/submissions`, {
@@ -52,9 +51,11 @@ document.addEventListener('DOMContentLoaded', () => {
     <td>${videoTitle}</td>
     <td>${annotationCount}</td>
     <td>${status}</td>
+    <td>-</td>
     <td>
       <div class="submission-button-container">
         <i data-submission-id="${id}" class="fas fa-trash delete-submission-btn"></i>
+        <i data-submission-id="${id}" class="fas fa-download export-submission-btn"></i>
       </div>
     </td>
   `;
@@ -95,4 +96,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   retrieveAndPopulateSubmissions();
+
+  const logoutLink = document.getElementById('logout-link');
+
+  logoutLink.addEventListener('click', () => {
+    // Send a POST request to the API
+    fetch("http://localhost:8080/api/auth/signout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include"
+    })
+    .then((response) => {
+      if (response.ok) {
+        alert("Logout successful!");
+        // Redirect to the login page or any other appropriate page
+        window.location.href = "login.html";
+      } else {
+        alert("Logout failed. Please try again.");
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+    });
+  });
 });

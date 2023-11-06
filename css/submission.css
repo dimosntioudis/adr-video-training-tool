@@ -11,10 +11,11 @@ body, button {
 
 .submission-button-container {
   display: flex;
-  justify-content: space-between;
+  /*justify-content: space-between;*/
 }
 
 .submission-button-container i {
+  padding-right: 10px;
   font-size: 18px; /* Adjust the font size as needed */
   cursor: pointer;
   color: #333; /* Adjust the color as needed */
