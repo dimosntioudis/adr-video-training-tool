@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const videoListElement = document.getElementById('video-list');
 
   let videoId;
+  let annotationId;
 
   // Function to fetch and display the video list
   async function fetchVideoList() {
@@ -714,6 +715,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <i data-annotation-id="${id}" class="fas fa-edit edit-annotation-btn"></i>
         <i data-annotation-id="${id}" class="fas fa-trash delete-annotation-btn"></i>
         <i data-annotation-id="${id}" class="fas fa-eye jump-to-btn"></i>
+        <i data-annotation-id="${id}" class="fas fa-comment feedback-btn"></i>
       </div>
     </td>
   `;
@@ -767,40 +769,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const saveAnnotationBtn = document.getElementById('save-annotation-btn');
 
   saveAnnotationBtn.addEventListener('click', () => {
-    // Get the annotation data
-    const second = videoPlayer.currentTime; // Retrieve the annotation second value
 
-    const frameRate = 30;
-    const frameNumber = Math.floor(second * frameRate);
-
-    const rectangle = {
-      x: startX, // Retrieve the rectangle x value,
-      y: startY, // Retrieve the rectangle y value,
-      width: width, // Retrieve the rectangle width value,
-      height: height, // Retrieve the rectangle height value,
-    };
-    const description = annotationDescription.value; // Retrieve the annotation description value
-
-    if (description === '') {
-      // Show the error message
-      errorMessage.classList.remove('hidden');
-    } else {
-      const dropdownValue = annotationDropdown.value; // Retrieve the dropdown value
+    if (isUpdatingAnnotation) {
+      const description = annotationDescription.value;
+      const dropdownValue = annotationDropdown.value;
 
       // Create the annotation object
       const annotation = {
-        frameNumber,
-        second,
-        rectangle,
         description,
         dropdownValue,
-        videoId
       };
 
       // Send a POST request to save the annotation
-      const id = videoId; // Replace 'videoId' with the actual video ID
-      fetch(`http://localhost:8080/api/test/annotations`, {
-        method: 'POST',
+      fetch(`http://localhost:8080/api/test/annotations/${annotationId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -810,7 +792,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .then((response) => {
         if (response.ok) {
           // Annotation saved successfully
-          console.log('Annotation saved successfully');
+          console.log('Annotation updated successfully');
 
           // Hide the annotation popup
           hideAnnotationPopup();
@@ -821,16 +803,84 @@ document.addEventListener('DOMContentLoaded', () => {
           // Retrieve and populate the updated annotation list
           retrieveAndPopulateAnnotations();
 
+          isUpdatingAnnotation = false;
+
           errorMessage.classList.add('hidden');
         } else {
           // Failed to save the annotation
-          console.error('Failed to save the annotation');
+          console.error('Failed to update the annotation');
         }
       })
       .catch((error) => {
-        console.error('An error occurred while saving the annotation:',
+        console.error('An error occurred while updating the annotation:',
             error);
       });
+    } else {
+      // Get the annotation data
+      const second = videoPlayer.currentTime; // Retrieve the annotation second value
+
+      const frameRate = 30;
+      const frameNumber = Math.floor(second * frameRate);
+
+      const rectangle = {
+        x: startX, // Retrieve the rectangle x value,
+        y: startY, // Retrieve the rectangle y value,
+        width: width, // Retrieve the rectangle width value,
+        height: height, // Retrieve the rectangle height value,
+      };
+      const description = annotationDescription.value; // Retrieve the annotation description value
+
+      if (description === '') {
+        // Show the error message
+        errorMessage.classList.remove('hidden');
+      } else {
+        const dropdownValue = annotationDropdown.value; // Retrieve the dropdown value
+
+        // Create the annotation object
+        const annotation = {
+          frameNumber,
+          second,
+          rectangle,
+          description,
+          dropdownValue,
+          videoId
+        };
+
+        // Send a POST request to save the annotation
+        const id = videoId; // Replace 'videoId' with the actual video ID
+        fetch(`http://localhost:8080/api/test/annotations`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(annotation),
+          credentials: "include",
+        })
+        .then((response) => {
+          if (response.ok) {
+            // Annotation saved successfully
+            console.log('Annotation saved successfully');
+
+            // Hide the annotation popup
+            hideAnnotationPopup();
+
+            // Reset the form fields
+            resetForm();
+
+            // Retrieve and populate the updated annotation list
+            retrieveAndPopulateAnnotations();
+
+            errorMessage.classList.add('hidden');
+          } else {
+            // Failed to save the annotation
+            console.error('Failed to save the annotation');
+          }
+        })
+        .catch((error) => {
+          console.error('An error occurred while saving the annotation:',
+              error);
+        });
+      }
     }
   });
 
@@ -849,6 +899,29 @@ document.addEventListener('DOMContentLoaded', () => {
     if (event.target.classList.contains('delete-annotation-btn')) {
       const annotationId = event.target.dataset.annotationId;
       deleteAnnotation(annotationId);
+    }
+  });
+
+  let isUpdatingAnnotation;
+
+  // Event listener for the delete annotation button
+  document.addEventListener('click', (event) => {
+    if (event.target.classList.contains('edit-annotation-btn')) {
+      annotationId = event.target.dataset.annotationId;
+
+      // Find the object with the matching ID
+      const foundObject = annotations.find(function (obj) {
+        return obj.id === annotationId;
+      });
+
+      if (foundObject) {
+        // Set custom values to the fields
+        annotationDescription.value = foundObject.description;
+        annotationDropdown.value = foundObject.dropdownValue;
+      }
+
+      isUpdatingAnnotation = true;
+      showAnnotationPopup();
     }
   });
 
