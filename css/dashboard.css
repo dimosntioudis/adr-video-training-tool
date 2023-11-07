@@ -243,7 +243,7 @@ body, button {
 
 /* Highlighted annotation row styles */
 .highlight {
-  background-color: #4CAF50;
+  background-color: #3BCC8E;
   font-weight: bold;
 }
 
@@ -281,7 +281,7 @@ body, button {
 }
 
 #upload-button:hover {
-  background-color: #4CAF50; /* Change the background color on hover */
+  background-color: #3BCC8E; /* Change the background color on hover */
 }
 
 .annotation-button-container {
@@ -297,7 +297,7 @@ body, button {
 }
 
 .annotation-button-container i:hover {
-  color: #4CAF50; /* Adjust the hover color as needed */
+  color: #3BCC8E; /* Adjust the hover color as needed */
 }
 
 /* Media query for screen sizes where the buttons should be stacked */
@@ -430,7 +430,7 @@ body, button {
 }
 
 .video-placeholder-overlay a {
-  color: #4CAF50;
+  color: #3BCC8E;
   text-decoration: underline;
 }
 
@@ -476,7 +476,7 @@ body, button {
 }
 
 .arrow-cell i:hover {
-  color: #4CAF50; /* Change the hover color as desired */
+  color: #3BCC8E; /* Change the hover color as desired */
 }
 
 .speed-dropdown {
@@ -500,7 +500,7 @@ body, button {
 }
 
 .speed-button:hover {
-  background-color: #4CAF50; /* Change the hover color as desired */
+  background-color: #3BCC8E; /* Change the hover color as desired */
 }
 
 .speed-button i {
@@ -538,6 +538,6 @@ body, button {
 }
 
 .speed-option.selected {
-  background-color: #4CAF50; /* Highlight the selected option */
+  background-color: #3BCC8E; /* Highlight the selected option */
   color: #fff; /* Change text color to white for the selected option */
 }

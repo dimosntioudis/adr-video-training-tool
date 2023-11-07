@@ -59,10 +59,10 @@ document.addEventListener('DOMContentLoaded', () => {
     <td>${lastName}</td>
     <td>${videoTitle}</td>
     <td>${annotationCount}</td>
-        <td>
+    <td>
       <select class="status-select" data-submission-id="${id}">
         <option value="Pending" ${status === 'Pending' ? 'selected' : ''}>Pending</option>
-        <option value="Reviewed" ${status === 'Approved' ? 'selected' : ''}>Reviewed</option>
+        <option value="Reviewed" ${status === 'Reviewed' ? 'selected' : ''}>Reviewed</option>
       </select>
     </td>
     <td>-</td>
@@ -101,4 +101,44 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error("Error:", error);
     });
   });
+
+  // Add an event listener to the update-submission-btn elements to handle updates
+  document.addEventListener('click', function (event) {
+    if (event.target.classList.contains('update-submission-btn')) {
+      const submissionId = event.target.getAttribute('data-submission-id');
+      const selectElement = document.querySelector(`.status-select[data-submission-id="${submissionId}"]`);
+      const newStatus = selectElement.value;
+
+      // Make a PUT request to update the status for the submission
+      updateSubmissionStatus(submissionId, newStatus);
+    }
+  });
+
+  // Function to update the submission status through a PUT request
+  function updateSubmissionStatus(submissionId, newStatus) {
+    // Make a PUT request to update the status for the submission
+    fetch(`http://localhost:8080/api/test/submissions/${submissionId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status: newStatus }),
+      credentials: "include",
+    })
+    .then((response) => {
+      if (response.ok) {
+        // Status updated successfully
+        showNotification('Status updated successfully', 'success');
+        console.log(`Status for submission with ID ${submissionId} updated to ${newStatus}`);
+      } else {
+        // Handle errors if the request fails
+        showNotification('Failed to update status', 'error');
+        console.error(`Failed to update the status for submission with ID ${submissionId}`);
+      }
+    })
+    .catch((error) => {
+      // Handle network or other errors here
+      console.error(`An error occurred while updating the status for submission with ID ${submissionId}:`, error);
+    });
+  }
 });

@@ -23,7 +23,7 @@ body, button {
 }
 
 .submission-button-container i:hover {
-  color: #4CAF50; /* Adjust the hover color as needed */
+  color: #3BCC8E; /* Adjust the hover color as needed */
 }
 
 /* Media query for screen sizes where the buttons should be stacked */
