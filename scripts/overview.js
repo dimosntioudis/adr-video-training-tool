@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   // Function to retrieve and populate the annotation list
-  function retrieveAndPopulateSubmissions() {
-    fetch(`http://localhost:8080/api/test/submissions`, {
+  function retrieveAndPopulateSubmissions(status) {
+    fetch(`http://localhost:8080/api/test/submissions?status=${status}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .then(data => {
       // Populate the annotation list
-      populateSubmissionList(data);
+      populateSubmissionList(status, data);
     })
     .catch(error => {
       console.error('Failed to retrieve submissions:', error);
@@ -30,14 +30,38 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Function to populate the annotation list
-  function populateSubmissionList(submissions) {
-    const submissionList = document.getElementById('submission-list');
-    submissionList.innerHTML = '';
+  function populateSubmissionList(status, submissions) {
+    if (status == 'Submitted') {
+      const submissionList = document.getElementById('submission-list');
+      submissionList.innerHTML = '';
 
-    submissions.forEach(submission => {
-      const item = createSubmissionItem(submission);
-      submissionList.appendChild(item);
-    });
+      submissions.forEach(submission => {
+        const item = createSubmissionItem(submission);
+        submissionList.appendChild(item);
+      });
+    }
+
+    if (status == 'In Progress') {
+      const submissionReviewedList = document.getElementById(
+          'submission-reviewed-list');
+      submissionReviewedList.innerHTML = '';
+
+      submissions.forEach(submission => {
+        const item = createSubmissionItem(submission);
+        submissionReviewedList.appendChild(item);
+      });
+    }
+
+    if (status == 'Completed') {
+      const submissionCompletedList = document.getElementById(
+          'submission-completed-list');
+      submissionCompletedList.innerHTML = '';
+
+      submissions.forEach(submission => {
+        const item = createSubmissionItem(submission);
+        submissionCompletedList.appendChild(item);
+      });
+    }
   }
 
   // Function to generate an annotation row in the table
@@ -61,8 +85,9 @@ document.addEventListener('DOMContentLoaded', () => {
     <td>${annotationCount}</td>
     <td>
       <select class="status-select" data-submission-id="${id}">
-        <option value="Pending" ${status === 'Pending' ? 'selected' : ''}>Pending</option>
-        <option value="Reviewed" ${status === 'Reviewed' ? 'selected' : ''}>Reviewed</option>
+        <option value="Submitted" ${status === 'Submitted' ? 'selected' : ''}>Submitted</option>
+        <option value="In Progress" ${status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+        <option value="Completed" ${status === 'Completed' ? 'selected' : ''}>Completed</option>
       </select>
     </td>
     <td>-</td>
@@ -75,32 +100,10 @@ document.addEventListener('DOMContentLoaded', () => {
     return row;
   }
 
-  retrieveAndPopulateSubmissions();
+  retrieveAndPopulateSubmissions('Submitted');
+  retrieveAndPopulateSubmissions('In Progress');
+  retrieveAndPopulateSubmissions('Completed');
 
-  const logoutLink = document.getElementById('logout-link');
-
-  logoutLink.addEventListener('click', () => {
-    // Send a POST request to the API
-    fetch("http://localhost:8080/api/auth/signout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include"
-    })
-    .then((response) => {
-      if (response.ok) {
-        alert("Logout successful!");
-        // Redirect to the login page or any other appropriate page
-        window.location.href = "login.html";
-      } else {
-        alert("Logout failed. Please try again.");
-      }
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
-  });
 
   // Add an event listener to the update-submission-btn elements to handle updates
   document.addEventListener('click', function (event) {
@@ -111,6 +114,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Make a PUT request to update the status for the submission
       updateSubmissionStatus(submissionId, newStatus);
+
+      retrieveAndPopulateSubmissions('Submitted');
+      retrieveAndPopulateSubmissions('In Progress');
+      retrieveAndPopulateSubmissions('Completed');
     }
   });
 

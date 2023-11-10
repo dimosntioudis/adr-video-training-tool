@@ -26,22 +26,22 @@
       <img alt="Logo" src="../images/1-ONCOSCREEN%20Logo.png">
     </div>
     <div class="login-logout" id="login-logout">
-      <a class="active" href="dashboard.html" id="dashboard-link">Dashboard</a>
-      <a href="submission.html" id="submission-link">Submissions</a>
+      <a href="overview.html" id="submission-link">Submissions</a>
+      <a class="active" href="evaluation.html" id="evaluation-link">Evaluation</a>
       <a href="#" id="logout-link">Logout</a>
     </div>
   </header>
 
-<!--  &lt;!&ndash; Sub-header element &ndash;&gt;-->
-<!--  <header class="sub-header">-->
-<!--    <div class="sub-header-content">-->
-<!--    </div>-->
-<!--    <div id="content-wrapper">-->
-<!--      <div id="upload-section">-->
-<!--        <button id="upload-button">Upload Video</button>-->
-<!--      </div>-->
-<!--    </div>-->
-<!--  </header>-->
+  <!--  &lt;!&ndash; Sub-header element &ndash;&gt;-->
+  <!--  <header class="sub-header">-->
+  <!--    <div class="sub-header-content">-->
+  <!--    </div>-->
+  <!--    <div id="content-wrapper">-->
+  <!--      <div id="upload-section">-->
+  <!--        <button id="upload-button">Upload Video</button>-->
+  <!--      </div>-->
+  <!--    </div>-->
+  <!--  </header>-->
 
   <!-- Main dashboard area -->
   <div class="dashboard-container">
@@ -80,7 +80,7 @@
             <i class="fas fa-play-circle"></i>
           </div>
 
-          <p class="placeholder-message" id="placeholder-message">Play a video from the Video List.
+          <p class="placeholder-message" id="placeholder-message">The selected video will start playing here.
           </p>
 
         </div>
@@ -159,17 +159,6 @@
 
     <div class="right-section">
 
-      <!-- Video Review Section -->
-      <div id="video-review-section">
-
-        <h3>Video List</h3>
-
-        <div id="video-list">
-          <!-- Video list will be dynamically inserted here -->
-        </div>
-
-      </div>
-
       <div id="annotation-section">
 
         <h3>Video Annotations</h3>
@@ -178,17 +167,16 @@
           <thead>
           <tr>
             <th>Second</th>
-            <th>Frame</th>
             <th>Description</th>
             <th>Category</th>
-            <th>Action</th>
+            <th>Evaluation</th>
+            <th>Comment</th>
           </tr>
           </thead>
           <tbody id="annotation-list">
           <!-- Annotation rows will be dynamically inserted here -->
           </tbody>
         </table>
-
       </div>
 
     </div>
@@ -196,32 +184,33 @@
   </div>
 
   <!-- Upload Popup Form -->
-<!--  <div class="popup hidden" id="upload-popup">-->
+  <!--  <div class="popup hidden" id="upload-popup">-->
 
-<!--    <div class="close-button-container">-->
-<!--      <button id="close-button">X</button>-->
-<!--    </div>-->
+  <!--    <div class="close-button-container">-->
+  <!--      <button id="close-button">X</button>-->
+  <!--    </div>-->
 
-<!--    <h3>Upload Video</h3>-->
+  <!--    <h3>Upload Video</h3>-->
 
-<!--    <form id="upload-form">-->
-<!--      <label for="video-title">Title:</label>-->
-<!--      <input id="video-title" required type="text">-->
+  <!--    <form id="upload-form">-->
+  <!--      <label for="video-title">Title:</label>-->
+  <!--      <input id="video-title" required type="text">-->
 
-<!--      <label for="video-description">Description:</label>-->
-<!--      <textarea id="video-description" required></textarea>-->
+  <!--      <label for="video-description">Description:</label>-->
+  <!--      <textarea id="video-description" required></textarea>-->
 
-<!--      <label for="video-file">Video:</label>-->
-<!--      <input accept="video/*" id="video-file" required type="file">-->
+  <!--      <label for="video-file">Video:</label>-->
+  <!--      <input accept="video/*" id="video-file" required type="file">-->
 
-<!--      <button type="submit">Upload</button>-->
-<!--    </form>-->
+  <!--      <button type="submit">Upload</button>-->
+  <!--    </form>-->
 
-<!--  </div>-->
+  <!--  </div>-->
 
 </div>
 
 <script src="../scripts/dashboard.js"></script>
+<script src="../scripts/submission.js"></script>
 <script src="../scripts/logout.js"></script>
 </body>
 </html>

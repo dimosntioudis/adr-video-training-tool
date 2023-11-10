@@ -39,3 +39,43 @@
 .status-select:focus + td {
   background-color: #e8e8e8;
 }
+
+.cool-table {
+  width: 100%; /* Optionally set the width to 100% */
+  margin-bottom: 70px; /* Adjust the margin as needed */
+}
+
+
+.board {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+.list {
+  flex: 1;
+  margin: 0 10px;
+}
+
+.card {
+  background-color: #f4f4f4;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+.cool-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cool-table th, .cool-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.cool-table th {
+  background-color: #f2f2f2;
+}

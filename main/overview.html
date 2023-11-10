@@ -31,6 +31,8 @@
       <img alt="Logo" src="../images/1-ONCOSCREEN%20Logo.png">
     </div>
     <div class="login-logout" id="login-logout">
+      <a class="active" href="overview.html" id="submission-link">Submissions</a>
+      <a href="evaluation.html" id="evaluation-link">Evaluation</a>
       <a href="#" id="logout-link">Logout</a>
     </div>
   </header>
@@ -38,11 +40,8 @@
   <div class="dashboard-container">
 
     <div class="middle-section">
-      <div>
-        <h3>Overview</h3>
-      </div>
-
       <table class="cool-table" id="submission-table">
+        <h4>Submissions</h4>
         <thead>
         <tr>
           <th>First Name</th>
@@ -59,6 +58,43 @@
         </tbody>
       </table>
 
+
+      <table class="cool-table" id="submission-reviewed-table">
+        <h4>Evaluation In Progress</h4>
+        <thead>
+        <tr>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Video Title</th>
+          <th>Number of Annotations</th>
+          <th>Status</th>
+          <th>Evaluation</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="submission-reviewed-list">
+        <!-- Annotation rows will be dynamically inserted here -->
+        </tbody>
+      </table>
+
+      <table class="cool-table" id="submission-completed-table">
+        <h4>Evaluation Completed</h4>
+        <thead>
+        <tr>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Video Title</th>
+          <th>Number of Annotations</th>
+          <th>Status</th>
+          <th>Evaluation</th>
+          <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="submission-completed-list">
+        <!-- Annotation rows will be dynamically inserted here -->
+        </tbody>
+      </table>
+
     </div>
 
   </div>
@@ -67,5 +103,6 @@
 
 <script src="../scripts/overview.js"></script> <!-- Include your JavaScript file for functionality -->
 <script src="../scripts/notification.js"></script> <!-- Include your JavaScript file for functionality -->
+<script src="../scripts/logout.js"></script>
 </body>
 </html>

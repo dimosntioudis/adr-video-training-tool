@@ -318,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (annotationItem) {
               annotationItem.classList.add('highlight'); // Add a CSS class
               // OR
-              annotationItem.style.backgroundColor = '#4CAF50'; // Apply inline styling
+              annotationItem.style.backgroundColor = '#3BCC8E'; // Apply inline styling
               annotationItem.style.color = 'white';
               highlightedAnnotationItems.push(annotationItem);
             }
@@ -754,7 +754,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Apply a CSS class or inline styling to highlight the annotation item
         annotationItem.classList.add('highlight'); // Add a CSS class
         // OR
-        annotationItem.style.backgroundColor = '#4CAF50'; // Apply inline styling
+        annotationItem.style.backgroundColor = '#3BCC8E'; // Apply inline styling
         annotationItem.style.color = 'white';
 
         // Set the currently highlighted item to the new annotation item
@@ -780,7 +780,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dropdownValue,
       };
 
-      // Send a POST request to save the annotation
+      // Send a PUT request to update the annotation
       fetch(`http://localhost:8080/api/test/annotations/${annotationId}`, {
         method: 'PUT',
         headers: {
@@ -843,7 +843,7 @@ document.addEventListener('DOMContentLoaded', () => {
           rectangle,
           description,
           dropdownValue,
-          videoId
+          videoId,
         };
 
         // Send a POST request to save the annotation
@@ -953,29 +953,4 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('Failed to delete the annotation:', error);
     });
   }
-
-  const logoutLink = document.getElementById('logout-link');
-
-  logoutLink.addEventListener('click', () => {
-    // Send a POST request to the API
-    fetch("http://localhost:8080/api/auth/signout", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include"
-    })
-    .then((response) => {
-      if (response.ok) {
-        alert("Logout successful!");
-        // Redirect to the login page or any other appropriate page
-        window.location.href = "login.html";
-      } else {
-        alert("Logout failed. Please try again.");
-      }
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
-  });
 });

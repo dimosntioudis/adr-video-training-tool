@@ -26,10 +26,7 @@ document.getElementById("loginForm").addEventListener("submit",
       })
       .then((response) => {
         if (response.ok) {
-          alert("Login successful!");
           return response.json();
-        } else {
-          alert("Login failed. Please try again.");
         }
       })
       .then(data => {

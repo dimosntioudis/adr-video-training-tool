@@ -46,11 +46,8 @@ document.getElementById("registrationForm").addEventListener("submit", function 
   })
   .then((response) => {
     if (response.ok) {
-      alert("Registration successful!");
       // Redirect to the login page or any other appropriate page
       window.location.href = "login.html";
-    } else {
-      alert("Registration failed. Please try again.");
     }
   })
   .catch((error) => {
