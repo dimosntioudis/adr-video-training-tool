@@ -286,7 +286,7 @@ body, button {
 }
 
 .annotation-button-container {
-  display: flex;
+  /*display: flex;*/
   justify-content: space-between;
 }
 
@@ -542,3 +542,4 @@ body, button {
   background-color: #3BCC8E; /* Highlight the selected option */
   color: #fff; /* Change text color to white for the selected option */
 }
+
