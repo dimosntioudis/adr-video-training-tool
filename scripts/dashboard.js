@@ -837,9 +837,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td>        
         <!-- Checkbox with a label for styling purposes -->
         <div class="annotation-checkbox-container">
-            <input type="checkbox" id="checkbox_${id}" class="annotation-checkbox-disabled" ${evaluation
-          ? 'checked' : ''} disabled>
-            <label for="checkbox_${id}"></label>
+          <div id="checkbox_${id}" class="annotation-checkbox-disabled" style="color: ${evaluation ? 'green' : 'red'}"> 
+            ${evaluation ? '✔' : '✘'} 
+          </div>
         </div>
         </td>
         <td>
@@ -865,7 +865,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       saveAnnotations();
       updateSubmissionStatusTrainer(parameterId, 'In Progress');
     } else if (target.classList.contains("submit-btn")) {
-      submitAnnotations();
+      saveAnnotations();
       updateSubmissionStatusTrainer(parameterId, 'Completed');
     }
   });
