@@ -30,7 +30,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
       const data = await response.json();
-      console.log(data);
       return data;
     } catch (error) {
       console.error('Failed to retrieve submissions:', error);
@@ -49,7 +48,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     let url;
     if (submissionVideo) {
       url = 'http://localhost:8080/api/test/videos/' + submissionVideo;
-      console.log(url);
     } else {
       url = 'http://localhost:8080/api/test/videos';
     }
@@ -654,11 +652,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const containerRect = videoContainer.getBoundingClientRect();
     const containerTop = containerRect.top;
-    console.log(containerTop);
 
     const videoRect = videoPlayer.getBoundingClientRect();
     const videoTop = videoRect.top;
-    console.log(videoTop);
 
     // Apply zoom to video player with the transform-origin set to the center
     const videoCenterX = videoPlayer.clientWidth / 2;
@@ -706,7 +702,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
       url = 'http://localhost:8080/api/test/annotations?videoId=' + videoId;
     }
-    console.log(url);
     fetch(url, {
       method: 'GET',
       headers: {
@@ -759,6 +754,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // Assuming 'parentContainer' is the parent container of your table
+  const parentContainer = document.getElementById("annotation-section");
+
   // Function to generate an annotation row in the table
   function createAnnotationItem(annotation) {
     const {second, frameNumber, description, dropdownValue, id} = annotation;
@@ -766,6 +764,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     row.classList.add('annotation-row');
     row.setAttribute('data-annotation-id', id);
     if (parameterId) {
+      // Create a new div for the buttons
+      const buttonsContainer = document.createElement("div");
+      buttonsContainer.classList.add("centered-buttons-container");
+
+      // Set the HTML content of the buttons container
+      buttonsContainer.innerHTML = `
+        <button class="annotation-button save-btn">Save</button>
+        <button class="annotation-button submit-btn">Submit</button>
+      `;
+
+      // Append the buttons container below the table
+      parentContainer.appendChild(buttonsContainer);
+
       row.innerHTML = `
         <td>${second}s</td>
         <td>${frameNumber}</td>
@@ -814,6 +825,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     return row;
   }
 
+  // Attach a single event listener to the parent container
+  parentContainer.addEventListener("click", function (event) {
+    const target = event.target;
+
+    // Check if a button with a specific class was clicked
+    if (target.classList.contains("save-btn")) {
+      saveAnnotations();
+    } else if (target.classList.contains("submit-btn")) {
+      submitAnnotations();
+    }
+  });
+
+  // Additional JavaScript code for handling Save and Submit actions
+  function saveAnnotations() {
+    // Perform actions to save annotations
+    console.log('Annotations saved!');
+    // You can add additional logic here based on your requirements
+  }
+
+  function submitAnnotations() {
+    // Perform actions to submit annotations
+    console.log('Annotations submitted!');
+    // You can add additional logic here based on your requirements
+  }
+
   // Get all checkboxes with the class 'annotation-checkbox'
   const checkboxes = document.querySelectorAll('.annotation-checkbox');
 
@@ -821,7 +857,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   checkboxes.forEach(checkbox => {
     checkbox.addEventListener('change', function () {
       // Update the label's content based on checkbox state
-      this.nextElementSibling.innerHTML = this.checked ? '&#10004;' : '&#10008;';
+      this.nextElementSibling.innerHTML = this.checked ? '&#10004;'
+          : '&#10008;';
     });
   });
 
