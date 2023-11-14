@@ -725,11 +725,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       annotations = data;
 
       annotationsMap = data.map(annotation => {
-        const {frameNumber, second, rectangle} = annotation;
+        const {
+          frameNumber,
+          second,
+          rectangle,
+          comment,
+          evaluation
+        } = annotation;
         const {x, y, width, height} = rectangle;
 
         // Return a new object with the desired properties
-        return {frameNumber, second, x, y, width, height};
+        return {frameNumber, second, x, y, width, height, comment, evaluation};
       });
 
       // Populate the annotation list
@@ -752,17 +758,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       const item = createAnnotationItem(annotation);
       annotationList.appendChild(item);
     });
-  }
 
-  // Assuming 'parentContainer' is the parent container of your table
-  const parentContainer = document.getElementById("annotation-section");
+    // Add change event listener to all checkboxes
+    const checkboxes = document.querySelectorAll('.annotation-checkbox');
+    checkboxes.forEach(checkbox => {
+      checkbox.addEventListener('change', function () {
+        const annotationId = this.id.split('_')[1];
+        const annotation = annotations.find(a => a.id === annotationId);
 
-  // Function to generate an annotation row in the table
-  function createAnnotationItem(annotation) {
-    const {second, frameNumber, description, dropdownValue, id} = annotation;
-    const row = document.createElement('tr');
-    row.classList.add('annotation-row');
-    row.setAttribute('data-annotation-id', id);
+        if (annotation) {
+          annotation.evaluation = this.checked;
+        }
+      });
+    });
+
     if (parameterId) {
       // Create a new div for the buttons
       const buttonsContainer = document.createElement("div");
@@ -776,7 +785,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       // Append the buttons container below the table
       parentContainer.appendChild(buttonsContainer);
+    }
+  }
 
+  // Assuming 'parentContainer' is the parent container of your table
+  const parentContainer = document.getElementById("annotation-section");
+
+  // Function to generate an annotation row in the table
+  function createAnnotationItem(annotation) {
+    const {
+      second,
+      frameNumber,
+      description,
+      dropdownValue,
+      id,
+      evaluation,
+      comment
+    } = annotation;
+    const row = document.createElement('tr');
+    row.classList.add('annotation-row');
+    row.setAttribute('data-annotation-id', id);
+    if (parameterId) {
       row.innerHTML = `
         <td>${second}s</td>
         <td>${frameNumber}</td>
@@ -785,8 +814,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td>        
         <!-- Checkbox with a label for styling purposes -->
         <div class="annotation-checkbox-container">
-            <input type="checkbox" id="checkbox_1" class="annotation-checkbox">
-            <label for="checkbox_1"></label>
+            <input type="checkbox" id="checkbox_${id}" class="annotation-checkbox" ${evaluation
+          ? 'checked' : ''}>
+            <label for="checkbox_${id}"></label>
         </div>
         </td>
         <td>
@@ -807,8 +837,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td>        
         <!-- Checkbox with a label for styling purposes -->
         <div class="annotation-checkbox-container">
-            <input type="checkbox" id="checkbox_1" class="annotation-checkbox" disabled>
-            <label for="checkbox_1"></label>
+            <input type="checkbox" id="checkbox_${id}" class="annotation-checkbox-disabled" ${evaluation
+          ? 'checked' : ''} disabled>
+            <label for="checkbox_${id}"></label>
         </div>
         </td>
         <td>
@@ -839,9 +870,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Additional JavaScript code for handling Save and Submit actions
   function saveAnnotations() {
-    // Perform actions to save annotations
-    console.log('Annotations saved!');
-    // You can add additional logic here based on your requirements
+    const putRequests = annotations.map(annotation => {
+      fetch(`http://localhost:8080/api/test/annotations/${annotation.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(annotation),
+        credentials: "include",
+      })
+    });
+
+    return Promise.all(putRequests);
   }
 
   function submitAnnotations() {
@@ -849,18 +889,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log('Annotations submitted!');
     // You can add additional logic here based on your requirements
   }
-
-  // Get all checkboxes with the class 'annotation-checkbox'
-  const checkboxes = document.querySelectorAll('.annotation-checkbox');
-
-  // Add change event listener to each checkbox
-  checkboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', function () {
-      // Update the label's content based on checkbox state
-      this.nextElementSibling.innerHTML = this.checked ? '&#10004;'
-          : '&#10008;';
-    });
-  });
 
   // Variable to store the drawn annotations
   const drawnAnnotations = new Set();
@@ -977,14 +1005,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const dropdownValue = annotationDropdown.value; // Retrieve the dropdown value
 
         // Create the annotation object
-        const annotation = {
+        const annotation = [{
           frameNumber,
           second,
           rectangle,
           description,
           dropdownValue,
           videoId,
-        };
+        }];
 
         // Send a POST request to save the annotation
         const id = videoId; // Replace 'videoId' with the actual video ID
