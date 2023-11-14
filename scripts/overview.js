@@ -94,11 +94,20 @@ document.addEventListener('DOMContentLoaded', () => {
     <td>
       <div class="submission-button-container">
         <i data-submission-id="${id}" class="fas fa-floppy-disk update-submission-btn"></i>
+        <i data-annotation-id="${id}" class="fas fa-eye evaluate-submission-btn"></i>
       </div>
     </td>
   `;
     return row;
   }
+
+  // Event listener for the delete annotation button
+  document.addEventListener('click', (event) => {
+    if (event.target.classList.contains('evaluate-submission-btn')) {
+      const id = event.target.dataset.annotationId;
+      window.location.href = "../main/evaluation.html?id=" + encodeURIComponent(id);
+    }
+  });
 
   retrieveAndPopulateSubmissions('Submitted');
   retrieveAndPopulateSubmissions('In Progress');
