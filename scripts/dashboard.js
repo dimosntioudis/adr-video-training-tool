@@ -863,10 +863,47 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Check if a button with a specific class was clicked
     if (target.classList.contains("save-btn")) {
       saveAnnotations();
+      updateSubmissionStatusTrainer(parameterId, 'In Progress');
     } else if (target.classList.contains("submit-btn")) {
       submitAnnotations();
+      updateSubmissionStatusTrainer(parameterId, 'Completed');
     }
   });
+
+  // Function to update the submission status through a PUT request
+  function updateSubmissionStatusTrainer(submissionId, newStatus) {
+    // Make a PUT request to update the status for the submission
+    fetch(`http://localhost:8080/api/test/submissions/${submissionId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status: newStatus }),
+      credentials: "include",
+    })
+    .then((response) => {
+      if (response.ok) {
+        if (newStatus == 'In Progress') {
+          // Status updated successfully
+          showNotificationMessage('Evaluation saved successfully', 'success');
+        } else {
+          // Status updated successfully
+          showNotificationMessage('Evaluation submitted successfully', 'success');
+        }
+      } else {
+        if (newStatus == 'In Progress') {
+          // Handle errors if the request fails
+          showNotificationMessage('Failed to save evaluation', 'error');
+        } else {
+          showNotificationMessage('Failed to submit evaluation', 'error');
+        }
+      }
+    })
+    .catch((error) => {
+      // Handle network or other errors here
+      console.error(`An error occurred while updating the status for submission with ID ${submissionId}:`, error);
+    });
+  }
 
   // Additional JavaScript code for handling Save and Submit actions
   function saveAnnotations() {
@@ -1139,5 +1176,35 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Update canvas size on initial page load
     updateCanvasSize();
+  }
+
+  function showNotificationMessage(message, type) {
+    const notification = document.getElementById('custom-notification');
+    notification.textContent = ''; // Clear any previous content
+
+    // Add Font Awesome icon
+    const icon = document.createElement('i');
+    icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-times-circle';
+    notification.appendChild(icon);
+
+    // Add a space between the icon and text
+    notification.appendChild(document.createTextNode(' '));
+
+    // Add the notification message
+    const textNode = document.createTextNode(message);
+    notification.appendChild(textNode);
+
+    // Set styles
+    notification.className = 'notification'; // Reset the class to remove previous styles
+    notification.classList.add(type);
+
+    // Show the notification
+    notification.style.display = 'block';
+
+    // Remove the notification after a few seconds (adjust the timeout as needed)
+    setTimeout(() => {
+      notification.textContent = '';
+      notification.style.display = 'none'; // Hide the notification
+    }, 3000);
   }
 });
