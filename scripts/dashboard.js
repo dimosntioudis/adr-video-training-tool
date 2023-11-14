@@ -1,13 +1,59 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+
+  // Function to get the parameter from the URL
+  function getParameterByName(name) {
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    return urlSearchParams.get(name);
+  }
+
+  // Retrieve the ID parameter value
+  const parameterId = getParameterByName("id");
+
+  async function retrieveAndPopulateSubmissionsForTrainer(parameterId) {
+    try {
+      const response = await fetch(
+          `http://localhost:8080/api/test/submissions/${parameterId}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            credentials: "include"
+          })
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch user submissions');
+      }
+
+      // Check if the response has no content (empty)
+      if (response.status === 204) {
+        return [];
+      }
+
+      const data = await response.json();
+      console.log(data);
+      return data;
+    } catch (error) {
+      console.error('Failed to retrieve submissions:', error);
+      throw error; // Re-throw the error to propagate it
+    }
+  }
+
   const videoListElement = document.getElementById('video-list');
 
   let videoId;
   let annotationId;
 
   // Function to fetch and display the video list
-  async function fetchVideoList() {
+  async function fetchVideoList(submissionVideo, userId) {
     // Make a request to the server to fetch the user's videos
-    fetch('http://localhost:8080/api/test/videos', {
+    let url;
+    if (submissionVideo) {
+      url = 'http://localhost:8080/api/test/videos/' + submissionVideo;
+      console.log(url);
+    } else {
+      url = 'http://localhost:8080/api/test/videos';
+    }
+    fetch(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -20,43 +66,55 @@ document.addEventListener('DOMContentLoaded', () => {
       return response.json();
     })
     .then(data => {
-      data.forEach(video => {
-        const videoItem = document.createElement('div');
-        videoItem.classList.add('video-item');
-        videoItem.classList.add('swiper-slide'); // Add the swiper-slide class
-        videoItem.innerHTML = `
+      if (submissionVideo) {
+        videoId = submissionVideo;
+
+        clearCanvas();
+
+        // Call a function to play the selected video using the videoId
+        playVideo(videoId);
+
+        // Retrieve and populate the updated annotation list
+        retrieveAndPopulateAnnotations(submissionVideo, userId);
+      } else {
+        data.forEach(video => {
+          const videoItem = document.createElement('div');
+          videoItem.classList.add('video-item');
+          videoItem.classList.add('swiper-slide'); // Add the swiper-slide class
+          videoItem.innerHTML = `
           <p>${video.title}</p>
           <button class="play-button" data-video-id="${video.id}">Play</button>
           <button class="submit-button" data-video-id="${video.id}">Submit</button>
         `;
-        videoListElement.appendChild(videoItem);
-      });
-
-      const submitButtons = document.querySelectorAll('.submit-button');
-      submitButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          videoId = button.dataset.videoId;
-
-          // Submit the annotation for the specific video
-          submitAnnotation(videoId);
+          videoListElement.appendChild(videoItem);
         });
-      })
 
-      // Attach event listeners to the play buttons
-      const playButtons = document.querySelectorAll('.play-button');
-      playButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          videoId = button.dataset.videoId;
+        const submitButtons = document.querySelectorAll('.submit-button');
+        submitButtons.forEach(button => {
+          button.addEventListener('click', () => {
+            videoId = button.dataset.videoId;
 
-          clearCanvas();
+            // Submit the annotation for the specific video
+            submitAnnotation(videoId);
+          });
+        })
 
-          // Call a function to play the selected video using the videoId
-          playVideo(videoId);
+        // Attach event listeners to the play buttons
+        const playButtons = document.querySelectorAll('.play-button');
+        playButtons.forEach(button => {
+          button.addEventListener('click', () => {
+            videoId = button.dataset.videoId;
 
-          // Retrieve and populate the updated annotation list
-          retrieveAndPopulateAnnotations();
+            clearCanvas();
+
+            // Call a function to play the selected video using the videoId
+            playVideo(videoId);
+
+            // Retrieve and populate the updated annotation list
+            retrieveAndPopulateAnnotations();
+          });
         });
-      });
+      }
     })
     .catch(error => {
       console.error('Failed to fetch user videos:', error);
@@ -577,12 +635,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Fetch and display the video list
-  fetchVideoList().then();
-
-  // Update canvas size on initial page load
-  updateCanvasSize();
-
   const zoomButtonPlus = document.getElementById('zoom-btn-plus');
   const zoomButtonMinus = document.getElementById('zoom-btn-minus');
   const videoContainer = document.getElementById('video-player-section');
@@ -646,8 +698,16 @@ document.addEventListener('DOMContentLoaded', () => {
   let annotationsMap = [];
 
   // Function to retrieve and populate the annotation list
-  function retrieveAndPopulateAnnotations() {
-    fetch(`http://localhost:8080/api/test/annotations?videoId=${videoId}`, {
+  function retrieveAndPopulateAnnotations(submissionVideo, userId) {
+    let url;
+    if (submissionVideo && userId) {
+      url = 'http://localhost:8080/api/test/annotations?videoId='
+          + submissionVideo + '&id=' + userId;
+    } else {
+      url = 'http://localhost:8080/api/test/annotations?videoId=' + videoId;
+    }
+    console.log(url);
+    fetch(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -705,22 +765,65 @@ document.addEventListener('DOMContentLoaded', () => {
     const row = document.createElement('tr');
     row.classList.add('annotation-row');
     row.setAttribute('data-annotation-id', id);
-    row.innerHTML = `
-    <td>${second}s</td>
-    <td>${frameNumber}</td>
-    <td>${description}</td>
-    <td>${dropdownValue}</td>
-    <td>
-      <div class="annotation-button-container">
-        <i data-annotation-id="${id}" class="fas fa-edit edit-annotation-btn"></i>
-        <i data-annotation-id="${id}" class="fas fa-trash delete-annotation-btn"></i>
-        <i data-annotation-id="${id}" class="fas fa-eye jump-to-btn"></i>
-        <i data-annotation-id="${id}" class="fas fa-comment feedback-btn"></i>
-      </div>
-    </td>
-  `;
+    if (parameterId) {
+      row.innerHTML = `
+        <td>${second}s</td>
+        <td>${frameNumber}</td>
+        <td>${description}</td>
+        <td>${dropdownValue}</td>
+        <td>        
+        <!-- Checkbox with a label for styling purposes -->
+        <div class="annotation-checkbox-container">
+            <input type="checkbox" id="checkbox_1" class="annotation-checkbox">
+            <label for="checkbox_1"></label>
+        </div>
+        </td>
+        <td>
+          <div class="annotation-button-container">
+            <i data-annotation-id="${id}" class="fas fa-edit edit-annotation-btn"></i>
+            <i data-annotation-id="${id}" class="fas fa-trash delete-annotation-btn"></i>
+            <i data-annotation-id="${id}" class="fas fa-eye jump-to-btn"></i>
+            <i data-annotation-id="${id}" class="fas fa-comment feedback-btn"></i>
+          </div>
+        </td>
+      `;
+    } else {
+      row.innerHTML = `
+        <td>${second}s</td>
+        <td>${frameNumber}</td>
+        <td>${description}</td>
+        <td>${dropdownValue}</td>
+        <td>        
+        <!-- Checkbox with a label for styling purposes -->
+        <div class="annotation-checkbox-container">
+            <input type="checkbox" id="checkbox_1" class="annotation-checkbox" disabled>
+            <label for="checkbox_1"></label>
+        </div>
+        </td>
+        <td>
+          <div class="annotation-button-container">
+            <i data-annotation-id="${id}" class="fas fa-edit edit-annotation-btn"></i>
+            <i data-annotation-id="${id}" class="fas fa-trash delete-annotation-btn"></i>
+            <i data-annotation-id="${id}" class="fas fa-eye jump-to-btn"></i>
+            <i data-annotation-id="${id}" class="fas fa-comment feedback-btn"></i>
+          </div>
+        </td>
+      `;
+    }
+
     return row;
   }
+
+  // Get all checkboxes with the class 'annotation-checkbox'
+  const checkboxes = document.querySelectorAll('.annotation-checkbox');
+
+  // Add change event listener to each checkbox
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function () {
+      // Update the label's content based on checkbox state
+      this.nextElementSibling.innerHTML = this.checked ? '&#10004;' : '&#10008;';
+    });
+  });
 
   // Variable to store the drawn annotations
   const drawnAnnotations = new Set();
@@ -952,5 +1055,24 @@ document.addEventListener('DOMContentLoaded', () => {
     .catch(error => {
       console.error('Failed to delete the annotation:', error);
     });
+  }
+
+  if (parameterId) {
+    // Example usage:
+    const data = await retrieveAndPopulateSubmissionsForTrainer(parameterId);
+
+    const {videoId, userId} = data;
+
+    fetchVideoList(videoId, userId).then();
+
+    // Update canvas size on initial page load
+    updateCanvasSize();
+
+  } else {
+    // Fetch and display the video list
+    fetchVideoList().then();
+
+    // Update canvas size on initial page load
+    updateCanvasSize();
   }
 });
