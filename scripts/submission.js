@@ -95,5 +95,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  retrieveAndPopulateSubmissions();
+  // Function to get the parameter from the URL
+  function getParameterByName(name) {
+    const urlSearchParams = new URLSearchParams(window.location.search);
+    return urlSearchParams.get(name);
+  }
+
+  // Retrieve the ID parameter value
+  const id = getParameterByName("id");
+
+  if (id) {
+
+  } else {
+    retrieveAndPopulateSubmissions();
+  }
 });
