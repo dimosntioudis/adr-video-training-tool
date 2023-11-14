@@ -12,11 +12,3 @@
   content: '\2718'; /* Unicode character for a cross */
   color: red;
 }
-
-/* Style for the disabled checkbox */
-.annotation-checkbox:disabled + label::before {
-  content: '\2714'; /* Unicode character for a checkmark */
-  color: gray; /* Adjust the color for the disabled state */
-  opacity: 0.5; /* Adjust as needed */
-  cursor: not-allowed; /* Change cursor to indicate not allowed */
-}
