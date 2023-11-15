@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             playVideo(videoId);
 
             // Retrieve and populate the updated annotation list
-            retrieveAndPopulateAnnotations();
+            retrieveAndPopulateAnnotations(videoId, userId);
           });
         });
       }
@@ -366,8 +366,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
           // You can also highlight all the corresponding annotation items
           targetRectangleData.forEach(annotationData => {
+            console.log(annotationData)
             const {x, y, width, height} = annotationData.rectangle;
-            drawRectangle(x, y, width, height);
+            const {color} = annotationData;
+
+            drawRectangle(x, y, width, height, color);
 
             const annotationId = annotationData.id; // Replace '' with the actual identifier of the annotation
             const annotationItem = document.querySelector(`tr[data-annotation-id="${annotationId}"]`);
@@ -426,9 +429,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   let zoomLevel = 1;
 
   // Function to draw a rectangle on the canvas
-  function drawRectangle(x1, y1, width, height) {
+  function drawRectangle(x1, y1, width, height, color) {
     const ctx = annotationCanvas.getContext('2d');
-    ctx.strokeStyle = 'red';
+    ctx.strokeStyle = color;
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.rect(x1 / zoomLevel, y1 / zoomLevel, width / zoomLevel,
@@ -500,7 +503,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     endY = event.clientY - rect.top;
     width = endX - startX;
     height = endY - startY;
-    drawRectangle(startX, startY, width, height);
+    if (parameterId) {
+      drawRectangle(startX, startY, width, height, 'blue');
+    } else {
+      drawRectangle(startX, startY, width, height, 'red');
+    }
     showAnnotationPopup();
     isDrawing = false;
   });
@@ -730,12 +737,13 @@ document.addEventListener('DOMContentLoaded', async () => {
           second,
           rectangle,
           comment,
-          evaluation
+          evaluation,
+          color
         } = annotation;
         const {x, y, width, height} = rectangle;
 
         // Return a new object with the desired properties
-        return {frameNumber, second, x, y, width, height, comment, evaluation};
+        return {frameNumber, second, x, y, width, height, comment, evaluation, color};
       });
 
       // Populate the annotation list
@@ -771,21 +779,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       });
     });
-
-    if (parameterId) {
-      // Create a new div for the buttons
-      const buttonsContainer = document.createElement("div");
-      buttonsContainer.classList.add("centered-buttons-container");
-
-      // Set the HTML content of the buttons container
-      buttonsContainer.innerHTML = `
-        <button class="annotation-button save-btn">Save</button>
-        <button class="annotation-button submit-btn">Submit</button>
-      `;
-
-      // Append the buttons container below the table
-      parentContainer.appendChild(buttonsContainer);
-    }
   }
 
   // Assuming 'parentContainer' is the parent container of your table
@@ -800,7 +793,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       dropdownValue,
       id,
       evaluation,
-      comment
+      color
     } = annotation;
     const row = document.createElement('tr');
     row.classList.add('annotation-row');
@@ -939,7 +932,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function drawAnnotation(annotations, currentTime) {
     // Draw the filtered annotations on the canvas
     for (const annotation of annotations) {
-      const {second, rectangle} = annotation;
+      const {second, rectangle, color} = annotation;
       const {x, y, width, height} = rectangle;
 
       // Calculate the time in the video corresponding to the annotation's second
@@ -950,7 +943,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Add the annotation to the drawn annotations set
         drawnAnnotations.add(annotation);
         videoPlayer.pause();
-        drawRectangle(x, y, width, height);
+        drawRectangle(x, y, width, height, color);
 
         // Find the corresponding annotation item
         const annotationId = annotation.id; // Replace 'id' with the actual identifier of the annotation
@@ -1006,7 +999,11 @@ document.addEventListener('DOMContentLoaded', async () => {
           resetForm();
 
           // Retrieve and populate the updated annotation list
-          retrieveAndPopulateAnnotations();
+          if (_userId) {
+            retrieveAndPopulateAnnotations(videoId, _userId);
+          } else {
+            retrieveAndPopulateAnnotations();
+          }
 
           isUpdatingAnnotation = false;
 
@@ -1041,6 +1038,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       } else {
         const dropdownValue = annotationDropdown.value; // Retrieve the dropdown value
 
+        let color;
+        if (parameterId) {
+          color = 'blue';
+        } else {
+          color = 'red';
+        }
+
         // Create the annotation object
         const annotation = [{
           frameNumber,
@@ -1049,11 +1053,18 @@ document.addEventListener('DOMContentLoaded', async () => {
           description,
           dropdownValue,
           videoId,
+          color
         }];
 
         // Send a POST request to save the annotation
-        const id = videoId; // Replace 'videoId' with the actual video ID
-        fetch(`http://localhost:8080/api/test/annotations`, {
+        let URL;
+        if (parameterId) {
+          URL = 'http://localhost:8080/api/test/annotations?id=' + _userId;
+        } else {
+          URL = 'http://localhost:8080/api/test/annotations';
+        }
+
+        fetch(URL, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -1073,7 +1084,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             resetForm();
 
             // Retrieve and populate the updated annotation list
-            retrieveAndPopulateAnnotations();
+            if (parameterId) {
+              retrieveAndPopulateAnnotations(videoId, _userId);
+            } else {
+              retrieveAndPopulateAnnotations();
+            }
 
             errorMessage.classList.add('hidden');
           } else {
@@ -1148,7 +1163,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         clearCanvas();
 
         // Retrieve and populate the updated annotation list
-        retrieveAndPopulateAnnotations();
+        if (parameterId) {
+          retrieveAndPopulateAnnotations(videoId, _userId);
+        } else {
+          retrieveAndPopulateAnnotations();
+        }
+
       } else {
         // Failed to delete the annotation
         console.error('Failed to delete the annotation');
@@ -1159,16 +1179,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  let _userId;
   if (parameterId) {
     // Example usage:
     const data = await retrieveAndPopulateSubmissionsForTrainer(parameterId);
 
     const {videoId, userId} = data;
+    _userId = userId;
 
-    fetchVideoList(videoId, userId).then();
+    fetchVideoList(videoId, _userId).then();
 
     // Update canvas size on initial page load
     updateCanvasSize();
+
+    if (parameterId) {
+      // Create a new div for the buttons
+      const buttonsContainer = document.createElement("div");
+      buttonsContainer.classList.add("centered-buttons-container");
+
+      // Set the HTML content of the buttons container
+      buttonsContainer.innerHTML = `
+        <button class="annotation-button save-btn">Save</button>
+        <button class="annotation-button submit-btn">Submit</button>
+      `;
+
+      // Append the buttons container below the table
+      parentContainer.appendChild(buttonsContainer);
+    }
 
   } else {
     // Fetch and display the video list
