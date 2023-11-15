@@ -72,6 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
       videoTitle,
       status,
       id,
+      evaluation,
       annotationIds
     } = submission;
     const annotationCount = annotationIds.length;
@@ -90,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <option value="Completed" ${status === 'Completed' ? 'selected' : ''}>Completed</option>
       </select>
     </td>
-    <td>-</td>
+    <td>${evaluation}</td>
     <td>
       <div class="submission-button-container">
         <i data-submission-id="${id}" class="fas fa-floppy-disk update-submission-btn"></i>

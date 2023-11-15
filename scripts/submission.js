@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Function to generate an annotation row in the table
   function createSubmissionItem(submission) {
-    const {videoTitle, status, id, annotationIds} = submission;
+    const {videoTitle, status, id, evaluation, annotationIds} = submission;
     const annotationCount = annotationIds.length;
     const row = document.createElement('tr');
     row.classList.add('submission-row');
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     <td>${videoTitle}</td>
     <td>${annotationCount}</td>
     <td>${status}</td>
-    <td>-</td>
+    <td>${evaluation}</td>
     <td>
       <div class="submission-button-container">
         <i data-submission-id="${id}" class="fas fa-trash delete-submission-btn"></i>
