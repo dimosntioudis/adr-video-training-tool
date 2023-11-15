@@ -800,7 +800,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     row.setAttribute('data-annotation-id', id);
     if (parameterId) {
       row.innerHTML = `
-        <td>${second}s</td>
+        <td>${second.toFixed(3)}s</td>
         <td>${frameNumber}</td>
         <td>${description}</td>
         <td>${dropdownValue}</td>
@@ -823,7 +823,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       `;
     } else {
       row.innerHTML = `
-        <td>${second}s</td>
+        <td>${second.toFixed(3)}s</td>
         <td>${frameNumber}</td>
         <td>${description}</td>
         <td>${dropdownValue}</td>
