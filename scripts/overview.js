@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   // Function to retrieve and populate the annotation list
   function retrieveAndPopulateSubmissions(status) {
-    fetch(`http://localhost:8080/api/test/submissions?status=${status}`, {
+    fetch(apiUrl + `api/test/submissions?status=${status}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -55,6 +55,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (status == 'Completed') {
       const submissionCompletedList = document.getElementById(
           'submission-completed-list');
+      submissionCompletedList.innerHTML = '';
+
+      submissions.forEach(submission => {
+        const item = createSubmissionItem(submission);
+        submissionCompletedList.appendChild(item);
+      });
+    }
+
+    if (status == '') {
+      const submissionCompletedList = document.getElementById(
+          'submission-list');
       submissionCompletedList.innerHTML = '';
 
       submissions.forEach(submission => {
@@ -134,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Function to update the submission status through a PUT request
   function updateSubmissionStatus(submissionId, newStatus) {
     // Make a PUT request to update the status for the submission
-    fetch(`http://localhost:8080/api/test/submissions/${submissionId}`, {
+    fetch(apiUrl + `api/test/submissions/${submissionId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
