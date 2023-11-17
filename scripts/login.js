@@ -7,7 +7,7 @@ document.getElementById("loginForm").addEventListener("submit",
       const password = document.getElementById("password").value;
 
       // Define the API endpoint URL
-      const apiUrl = "http://localhost:8080/api/auth/signin"; // Replace with your API endpoint URL
+      const url = apiUrl + 'api/auth/signin'; // Replace with your API endpoint URL
 
       // Prepare the request data
       const requestData = {
@@ -16,7 +16,7 @@ document.getElementById("loginForm").addEventListener("submit",
       };
 
       // Send a POST request to the API
-      fetch(apiUrl, {
+      fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -33,6 +33,8 @@ document.getElementById("loginForm").addEventListener("submit",
         const {roles} = data;
         if (roles.toString().includes("TRAINER")) {
           window.location.href = "overview.html";
+        } else if (roles.toString().includes("ADMIN")) {
+          window.location.href = "admin.html";
         } else {
           window.location.href = "dashboard.html";
         }

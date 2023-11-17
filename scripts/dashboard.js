@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   async function retrieveAndPopulateSubmissionsForTrainer(parameterId) {
     try {
       const response = await fetch(
-          `http://localhost:8080/api/test/submissions/${parameterId}`, {
+          apiUrl + `api/test/submissions/${parameterId}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json'
@@ -47,9 +47,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Make a request to the server to fetch the user's videos
     let url;
     if (submissionVideo) {
-      url = 'http://localhost:8080/api/test/videos/' + submissionVideo;
+      url = apiUrl + 'api/test/videos/' + submissionVideo;
     } else {
-      url = 'http://localhost:8080/api/test/videos';
+      url = apiUrl + 'api/test/videos';
     }
     fetch(url, {
       method: 'GET',
@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     try {
-      fetch('http://localhost:8080/api/test/submissions', {
+      fetch(apiUrl + 'api/test/submissions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Function to play the video
   function playVideo(videoId) {
     // Retrieve the video based on the videoId
-    fetch(`http://localhost:8080/api/test/videos/${videoId}`, {
+    fetch(apiUrl + `api/test/videos/${videoId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -366,7 +366,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
           // You can also highlight all the corresponding annotation items
           targetRectangleData.forEach(annotationData => {
-            console.log(annotationData)
             const {x, y, width, height} = annotationData.rectangle;
             const {color} = annotationData;
 
@@ -704,10 +703,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   function retrieveAndPopulateAnnotations(submissionVideo, userId) {
     let url;
     if (submissionVideo && userId) {
-      url = 'http://localhost:8080/api/test/annotations?videoId='
+      url = apiUrl + 'api/test/annotations?videoId='
           + submissionVideo + '&id=' + userId;
     } else {
-      url = 'http://localhost:8080/api/test/annotations?videoId=' + videoId;
+      url = apiUrl + 'api/test/annotations?videoId=' + videoId;
     }
     fetch(url, {
       method: 'GET',
@@ -866,7 +865,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Function to update the submission status through a PUT request
   function updateSubmissionStatusTrainer(submissionId, newStatus) {
     // Make a PUT request to update the status for the submission
-    fetch(`http://localhost:8080/api/test/submissions/${submissionId}`, {
+    fetch(apiUrl + `api/test/submissions/${submissionId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -901,7 +900,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Additional JavaScript code for handling Save and Submit actions
   function saveAnnotations() {
     const putRequests = annotations.map(annotation => {
-      fetch(`http://localhost:8080/api/test/annotations/${annotation.id}`, {
+      fetch(apiUrl + `api/test/annotations/${annotation.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -979,7 +978,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       };
 
       // Send a PUT request to update the annotation
-      fetch(`http://localhost:8080/api/test/annotations/${annotationId}`, {
+      fetch(apiUrl + `api/test/annotations/${annotationId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -1059,9 +1058,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Send a POST request to save the annotation
         let URL;
         if (parameterId) {
-          URL = 'http://localhost:8080/api/test/annotations?id=' + _userId;
+          URL = apiUrl + 'api/test/annotations?id=' + _userId;
         } else {
-          URL = 'http://localhost:8080/api/test/annotations';
+          URL = apiUrl + 'api/test/annotations';
         }
 
         fetch(URL, {
@@ -1147,7 +1146,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Function to delete an annotation
   function deleteAnnotation(annotationId) {
-    fetch(`http://localhost:8080/api/test/annotations/${annotationId}`,
+    fetch(apiUrl + `api/test/annotations/${annotationId}`,
         {
           method: 'DELETE',
           headers: {

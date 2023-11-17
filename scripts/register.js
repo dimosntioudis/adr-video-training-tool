@@ -16,7 +16,7 @@ document.getElementById("registrationForm").addEventListener("submit", function 
   const selectedCountry = document.getElementById('countrySelection').value;
 
   // Define the API endpoint URL
-  const apiUrl = "http://localhost:8080/api/auth/signup"; // Replace with your API endpoint URL
+  const url = apiUrl + 'api/test/auth/signup'; // Replace with your API endpoint URL
 
   let role;
   if (trainerRadio.checked) {
@@ -37,7 +37,7 @@ document.getElementById("registrationForm").addEventListener("submit", function 
   };
 
   // Send a POST request to the API
-  fetch(apiUrl, {
+  fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

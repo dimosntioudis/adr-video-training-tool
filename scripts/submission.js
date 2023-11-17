@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   // Function to retrieve and populate the annotation list
   function retrieveAndPopulateSubmissions() {
-    fetch(`http://localhost:8080/api/test/submissions`, {
+    fetch(apiUrl + 'api/test/submissions', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Function to delete an annotation
   function deleteSubmission(submissionId) {
-    fetch(`http://localhost:8080/api/test/submissions/${submissionId}`,
+    fetch(apiUrl + 'api/test/submissions/${submissionId}',
         {
           method: 'DELETE',
           headers: {

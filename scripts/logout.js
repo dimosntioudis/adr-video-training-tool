@@ -2,7 +2,7 @@ const logoutLink = document.getElementById('logout-link');
 
 logoutLink.addEventListener('click', () => {
   // Send a POST request to the API
-  fetch("http://localhost:8080/api/auth/signout", {
+  fetch(apiUrl + 'api/auth/signout', {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
