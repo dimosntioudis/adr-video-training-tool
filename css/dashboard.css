@@ -354,7 +354,8 @@ body, button {
 .popup textarea,
 .popup select {
   font-family: 'Poppins', sans-serif;
-  width: 100%;
+  width: 95%;
+  height: 50px;
   padding: 8px;
   margin-bottom: 10px;
   border: 1px solid #ccc;
@@ -393,6 +394,10 @@ body, button {
   width: 300px;
 }
 
+#evaluation-popup {
+  width: 300px;
+}
+
 #annotation-popup textarea {
   width: 280px;
   height: 80px;
@@ -400,7 +405,20 @@ body, button {
   font-size: 16px;
 }
 
+#evaluation-popup textarea {
+  width: 280px;
+  height: 80px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+}
+
 #annotation-popup select {
+  width: 100%;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+}
+
+#evaluation-popup select {
   width: 100%;
   font-family: 'Poppins', sans-serif;
   font-size: 16px;

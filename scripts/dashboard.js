@@ -196,6 +196,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       // Play the video
       videoPlayer.currentTime = 0;
       isPaused = false;
+
       playVideoFrameByFrame(videoPlayer.currentTime);
     })
     .catch(error => {
@@ -742,7 +743,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         const {x, y, width, height} = rectangle;
 
         // Return a new object with the desired properties
-        return {frameNumber, second, x, y, width, height, comment, evaluation, color};
+        return {
+          frameNumber,
+          second,
+          x,
+          y,
+          width,
+          height,
+          comment,
+          evaluation,
+          color
+        };
       });
 
       // Populate the annotation list
@@ -792,7 +803,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       dropdownValue,
       id,
       evaluation,
-      color
+      comment
     } = annotation;
     const row = document.createElement('tr');
     row.classList.add('annotation-row');
@@ -816,7 +827,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <i data-annotation-id="${id}" class="fas fa-edit edit-annotation-btn"></i>
             <i data-annotation-id="${id}" class="fas fa-trash delete-annotation-btn"></i>
             <i data-annotation-id="${id}" class="fas fa-eye jump-to-btn"></i>
-            <i data-annotation-id="${id}" class="fas fa-comment feedback-btn"></i>
+            <i data-annotation-id="${id}" data-comment="${comment}" class="fas fa-comment feedback-btn"></i>
           </div>
         </td>
       `;
@@ -829,7 +840,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td>        
         <!-- Checkbox with a label for styling purposes -->
         <div class="annotation-checkbox-container">
-          <div id="checkbox_${id}" class="annotation-checkbox-disabled" style="color: ${evaluation ? 'green' : 'red'}"> 
+          <div id="checkbox_${id}" class="annotation-checkbox-disabled" style="color: ${evaluation
+          ? 'green' : 'red'}"> 
             ${evaluation ? '✔' : '✘'} 
           </div>
         </div>
@@ -839,7 +851,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             <i data-annotation-id="${id}" class="fas fa-edit edit-annotation-btn"></i>
             <i data-annotation-id="${id}" class="fas fa-trash delete-annotation-btn"></i>
             <i data-annotation-id="${id}" class="fas fa-eye jump-to-btn"></i>
-            <i data-annotation-id="${id}" class="fas fa-comment feedback-btn"></i>
+            <i data-annotation-id="${id}" data-comment="${comment}" class="fas fa-comment feedback-btn"></i>
           </div>
         </td>
       `;
@@ -870,7 +882,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ status: newStatus }),
+      body: JSON.stringify({status: newStatus}),
       credentials: "include",
     })
     .then((response) => {
@@ -880,7 +892,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           showNotificationMessage('Evaluation saved successfully', 'success');
         } else {
           // Status updated successfully
-          showNotificationMessage('Evaluation submitted successfully', 'success');
+          showNotificationMessage('Evaluation submitted successfully',
+              'success');
         }
       } else {
         if (newStatus == 'In Progress') {
@@ -893,7 +906,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     })
     .catch((error) => {
       // Handle network or other errors here
-      console.error(`An error occurred while updating the status for submission with ID ${submissionId}:`, error);
+      console.error(
+          `An error occurred while updating the status for submission with ID ${submissionId}:`,
+          error);
     });
   }
 
@@ -1214,13 +1229,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateCanvasSize();
   }
 
+  const evaluationPopup = document.getElementById('evaluation-popup');
+
+  // Event listener for the delete annotation button
+  document.addEventListener('click', (event) => {
+    if (event.target.classList.contains('evaluation-popup')) {
+      annotationId = event.target.dataset.annotationId;
+      showEvaluationPopup();
+    }
+  });
+
+  // Function to show the annotation popup
+  function showEvaluationPopup() {
+    evaluationPopup.classList.remove('hidden');
+  }
+
   function showNotificationMessage(message, type) {
     const notification = document.getElementById('custom-notification');
     notification.textContent = ''; // Clear any previous content
 
     // Add Font Awesome icon
     const icon = document.createElement('i');
-    icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-times-circle';
+    icon.className = type === 'success' ? 'fas fa-check-circle'
+        : 'fas fa-times-circle';
     notification.appendChild(icon);
 
     // Add a space between the icon and text

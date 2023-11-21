@@ -24,6 +24,22 @@
 
 <div class="dashboard-page">
 
+  <div class="popup hidden" id="evaluation-popup">
+
+    <div class="close-button-container">
+      <button id="close-evaluation-popup-btn">X</button>
+    </div>
+
+    <h3>Feedback</h3>
+
+    <textarea id="evaluation-description" placeholder="Add a description..."></textarea>
+
+    <button id="save-evaluation-btn">Save</button>
+
+    <p class="hidden" id="error-message-evaluation">Description is required.</p>
+
+  </div>
+
   <!-- Header element -->
   <header>
     <div class="logo">
@@ -194,5 +210,6 @@
 <script src="../scripts/submission.js"></script>
 <script src="../scripts/logout.js"></script>
 <script src="../scripts/config.js"></script>
+<script src="../scripts/evaluation.js"></script>
 </body>
 </html>
