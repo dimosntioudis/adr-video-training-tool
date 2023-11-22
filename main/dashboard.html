@@ -20,6 +20,20 @@
 
 <div class="dashboard-page">
 
+  <div class="popup hidden" id="evaluation-popup">
+
+    <div class="close-button-container">
+      <button id="close-evaluation-popup-btn">X</button>
+    </div>
+
+    <h3>Feedback</h3>
+
+    <textarea id="evaluation-description" placeholder="Add a description..."></textarea>
+
+    <p class="hidden" id="error-message-evaluation">Description is required.</p>
+
+  </div>
+
   <!-- Header element -->
   <header>
     <div class="logo">
@@ -31,17 +45,6 @@
       <a href="#" id="logout-link">Logout</a>
     </div>
   </header>
-
-<!--  &lt;!&ndash; Sub-header element &ndash;&gt;-->
-<!--  <header class="sub-header">-->
-<!--    <div class="sub-header-content">-->
-<!--    </div>-->
-<!--    <div id="content-wrapper">-->
-<!--      <div id="upload-section">-->
-<!--        <button id="upload-button">Upload Video</button>-->
-<!--      </div>-->
-<!--    </div>-->
-<!--  </header>-->
 
   <!-- Main dashboard area -->
   <div class="dashboard-container">
@@ -196,29 +199,7 @@
 
   </div>
 
-  <!-- Upload Popup Form -->
-<!--  <div class="popup hidden" id="upload-popup">-->
-
-<!--    <div class="close-button-container">-->
-<!--      <button id="close-button">X</button>-->
-<!--    </div>-->
-
-<!--    <h3>Upload Video</h3>-->
-
-<!--    <form id="upload-form">-->
-<!--      <label for="video-title">Title:</label>-->
-<!--      <input id="video-title" required type="text">-->
-
-<!--      <label for="video-description">Description:</label>-->
-<!--      <textarea id="video-description" required></textarea>-->
-
-<!--      <label for="video-file">Video:</label>-->
-<!--      <input accept="video/*" id="video-file" required type="file">-->
-
-<!--      <button type="submit">Upload</button>-->
-<!--    </form>-->
-
-<!--  </div>-->
+</div>
 
 </div>
 

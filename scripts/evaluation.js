@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const evaluationPopup = document.getElementById('evaluation-popup');
   let annotationId;
   let comment;
-  let isUpdatingAnnotation;
 
   // Event listener for the delete annotation button
   document.addEventListener('click', (event) => {

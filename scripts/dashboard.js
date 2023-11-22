@@ -758,6 +758,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       // Populate the annotation list
       populateAnnotationList(data);
+
+      const icons = document.querySelectorAll('.feedback-btn');
+      icons.forEach(function(icon) {
+        if (icon.getAttribute("data-comment")) {
+          icon.classList.add("has-comment");
+        } else {
+          icon.classList.remove("has-comment");
+        }
+      });
     })
     .catch(error => {
       console.error('Failed to retrieve annotations:', error);
@@ -805,6 +814,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       evaluation,
       comment
     } = annotation;
+    console.log(comment)
     const row = document.createElement('tr');
     row.classList.add('annotation-row');
     row.setAttribute('data-annotation-id', id);
@@ -827,11 +837,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             <i data-annotation-id="${id}" class="fas fa-edit edit-annotation-btn"></i>
             <i data-annotation-id="${id}" class="fas fa-trash delete-annotation-btn"></i>
             <i data-annotation-id="${id}" class="fas fa-eye jump-to-btn"></i>
-            <i data-annotation-id="${id}" data-comment="${comment}" class="fas fa-comment feedback-btn"></i>
+            <i id="feedback-button-id" data-annotation-id="${id}" data-comment="${comment}" class="fas fa-comment feedback-btn ${comment ? 'has-comment' : ''}"></i>
           </div>
         </td>
       `;
     } else {
+      evaluationDescription.readOnly = true;
       row.innerHTML = `
         <td>${second.toFixed(3)}s</td>
         <td>${frameNumber}</td>
@@ -1193,6 +1204,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  const saveEvalBtn = document.getElementById('save-evaluation-btn');
+  const evaluationDescription = document.getElementById(
+      'evaluation-description');
+  const evaluationPopup = document.getElementById('evaluation-popup');
+
+  // Event listener for the delete annotation button
+  document.addEventListener('click', (event) => {
+    let id;
+    let comment;
+    if (event.target.classList.contains('feedback-btn')) {
+      id = event.target.dataset.annotationId;
+      comment = event.target.dataset.comment;
+      evaluationDescription.value = comment;
+
+      showEvaluationPopup();
+    }
+  });
+
+  // Function to show the annotation popup
+  function showEvaluationPopup() {
+    evaluationPopup.classList.remove('hidden');
+  }
+
+  function hideEvaluationPopup() {
+    evaluationPopup.classList.add('hidden');
+  }
+
+  const closeEvalBtn = document.getElementById('close-evaluation-popup-btn');
+
+  // Event listener for the close button
+  closeEvalBtn.addEventListener('click', () => {
+    hideEvaluationPopup();
+  });
+
   let _userId;
   if (parameterId) {
     // Example usage:
@@ -1227,51 +1272,5 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Update canvas size on initial page load
     updateCanvasSize();
-  }
-
-  const evaluationPopup = document.getElementById('evaluation-popup');
-
-  // Event listener for the delete annotation button
-  document.addEventListener('click', (event) => {
-    if (event.target.classList.contains('evaluation-popup')) {
-      annotationId = event.target.dataset.annotationId;
-      showEvaluationPopup();
-    }
-  });
-
-  // Function to show the annotation popup
-  function showEvaluationPopup() {
-    evaluationPopup.classList.remove('hidden');
-  }
-
-  function showNotificationMessage(message, type) {
-    const notification = document.getElementById('custom-notification');
-    notification.textContent = ''; // Clear any previous content
-
-    // Add Font Awesome icon
-    const icon = document.createElement('i');
-    icon.className = type === 'success' ? 'fas fa-check-circle'
-        : 'fas fa-times-circle';
-    notification.appendChild(icon);
-
-    // Add a space between the icon and text
-    notification.appendChild(document.createTextNode(' '));
-
-    // Add the notification message
-    const textNode = document.createTextNode(message);
-    notification.appendChild(textNode);
-
-    // Set styles
-    notification.className = 'notification'; // Reset the class to remove previous styles
-    notification.classList.add(type);
-
-    // Show the notification
-    notification.style.display = 'block';
-
-    // Remove the notification after a few seconds (adjust the timeout as needed)
-    setTimeout(() => {
-      notification.textContent = '';
-      notification.style.display = 'none'; // Hide the notification
-    }, 3000);
   }
 });

@@ -566,3 +566,8 @@ body, button {
   text-align: left;
   margin-top: 20px; /* Adjust margin as needed */
 }
+
+.has-comment {
+  color: #D34876FF !important; /* your desired color for icons with comments */;
+}
+
